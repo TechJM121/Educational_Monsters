@@ -1,24 +1,31 @@
+import type { CharacterStats } from './character';
+
 export interface Question {
   id: string;
-  subjectId: string;
-  questionText: string;
-  answerOptions: string[];
-  correctAnswer: string;
-  difficultyLevel: number;
-  xpReward: number;
-  ageRange: string;
-  createdAt: Date;
+  subject_id: string;
+  question_text: string;
+  answer_options: string[];
+  correct_answer: string;
+  difficulty_level: number;
+  xp_reward: number;
+  age_range: string;
+  created_at: Date;
+  subjects?: {
+    name: string;
+    primary_stat: string;
+    secondary_stat: string;
+  };
 }
 
 export interface QuestionResponse {
   id: string;
-  questionId: string;
-  userId: string;
-  selectedAnswer: string;
-  isCorrect: boolean;
-  xpEarned: number;
-  timeSpent: number;
-  answeredAt: Date;
+  question_id: string;
+  user_id: string;
+  selected_answer: string;
+  is_correct: boolean;
+  xp_earned: number;
+  response_time_seconds?: number;
+  created_at: Date;
 }
 
 export interface Subject {
@@ -33,4 +40,34 @@ export interface Subject {
   };
 }
 
-import type { CharacterStats } from './character';
+export interface LearningSessionConfig {
+  questionsPerSession: number;
+  timeLimit?: number; // in seconds
+  adaptiveDifficulty: boolean;
+  showProgress: boolean;
+  enableHints: boolean;
+}
+
+export interface SessionAnalytics {
+  sessionId: string;
+  userId: string;
+  subjectId?: string;
+  startTime: Date;
+  endTime?: Date;
+  totalQuestions: number;
+  correctAnswers: number;
+  totalXPEarned: number;
+  averageResponseTime: number;
+  accuracy: number;
+  difficultyProgression: number[];
+  timeSpentPerQuestion: number[];
+  streakBonuses: number;
+}
+
+export interface AdaptiveDifficultyState {
+  currentDifficulty: number;
+  consecutiveCorrect: number;
+  consecutiveIncorrect: number;
+  performanceHistory: boolean[];
+  adjustmentThreshold: number;
+}

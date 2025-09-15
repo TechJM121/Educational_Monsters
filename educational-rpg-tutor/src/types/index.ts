@@ -6,6 +6,7 @@ export * from './social';
 export * from './parent';
 export * from './auth';
 export * from './world';
+export * from './navigation';
 
 // Real-time and offline types
 export interface RealtimeSubscription {
