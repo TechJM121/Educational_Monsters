@@ -1,40 +1,110 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { motion } from 'framer-motion';
+import { errorService } from '../../services/errorService';
+import { AppError } from '../../types/error';
 
 interface Props {
   children: ReactNode;
   fallback?: ReactNode;
   onError?: (error: Error, errorInfo: ErrorInfo) => void;
+  context?: string;
+  userId?: string;
 }
 
 interface State {
   hasError: boolean;
   error?: Error;
   errorInfo?: ErrorInfo;
+  errorId?: string;
+  retryCount: number;
 }
 
 export class ErrorBoundary extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    this.state = { hasError: false };
+    this.state = { 
+      hasError: false,
+      retryCount: 0
+    };
   }
 
-  static getDerivedStateFromError(error: Error): State {
+  static getDerivedStateFromError(error: Error): Partial<State> {
     return { hasError: true, error };
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    this.setState({ error, errorInfo });
+    const errorId = crypto.randomUUID();
+    
+    this.setState({ 
+      error, 
+      errorInfo, 
+      errorId 
+    });
+
+    // Create structured error
+    const appError: AppError = errorService.createError(
+      'system',
+      error.message,
+      {
+        severity: 'high',
+        details: errorInfo.componentStack,
+        context: {
+          component: this.props.context || 'Unknown',
+          errorBoundary: true,
+          retryCount: this.state.retryCount,
+          ...errorInfo
+        },
+        userId: this.props.userId,
+        recoverable: true,
+        retryable: true
+      }
+    );
+
+    // Log error
+    errorService.logError(appError);
+
+    // Call custom error handler
     this.props.onError?.(error, errorInfo);
     
     // Log error to console in development
     if (process.env.NODE_ENV === 'development') {
       console.error('ErrorBoundary caught an error:', error, errorInfo);
+      console.error('Error ID:', errorId);
     }
   }
 
   handleRetry = () => {
-    this.setState({ hasError: false, error: undefined, errorInfo: undefined });
+    this.setState(prevState => ({ 
+      hasError: false, 
+      error: undefined, 
+      errorInfo: undefined,
+      errorId: undefined,
+      retryCount: prevState.retryCount + 1
+    }));
+  };
+
+  handleReportError = () => {
+    if (this.state.error && this.state.errorId) {
+      // Create feedback with error details
+      const errorDetails = {
+        errorId: this.state.errorId,
+        message: this.state.error.message,
+        stack: this.state.error.stack,
+        componentStack: this.state.errorInfo?.componentStack,
+        context: this.props.context,
+        retryCount: this.state.retryCount
+      };
+
+      // Open feedback modal with pre-filled error information
+      window.dispatchEvent(new CustomEvent('open-feedback', {
+        detail: {
+          type: 'bug',
+          category: 'System Error',
+          title: `Error: ${this.state.error.message}`,
+          description: `An error occurred in the application.\n\nError ID: ${this.state.errorId}\n\nDetails: ${JSON.stringify(errorDetails, null, 2)}`
+        }
+      }));
+    }
   };
 
   render() {
@@ -42,6 +112,8 @@ export class ErrorBoundary extends Component<Props, State> {
       if (this.props.fallback) {
         return this.props.fallback;
       }
+
+      const isRepeatedError = this.state.retryCount > 2;
 
       return (
         <motion.div
@@ -62,24 +134,42 @@ export class ErrorBoundary extends Component<Props, State> {
               }}
               className="text-6xl mb-4"
             >
-              🛡️
+              {isRepeatedError ? '⚠️' : '🛡️'}
             </motion.div>
             
             <h2 className="text-2xl font-rpg text-slate-200 mb-4">
-              Oops! Something went wrong
+              {isRepeatedError ? 'Persistent Error Detected' : 'Oops! Something went wrong'}
             </h2>
             
             <p className="text-slate-400 mb-6">
-              Don't worry, brave adventurer! Even the mightiest heroes encounter unexpected challenges. 
-              Let's get you back on your learning quest!
+              {isRepeatedError 
+                ? 'This error keeps happening. Please report it so we can fix it for you!'
+                : 'Don\'t worry, brave adventurer! Even the mightiest heroes encounter unexpected challenges. Let\'s get you back on your learning quest!'
+              }
             </p>
 
+            {this.state.errorId && (
+              <div className="mb-4 p-3 bg-slate-700 rounded-lg">
+                <p className="text-xs text-slate-400">Error ID:</p>
+                <p className="text-sm text-slate-200 font-mono">{this.state.errorId}</p>
+              </div>
+            )}
+
             <div className="space-y-4">
+              {!isRepeatedError && (
+                <button
+                  onClick={this.handleRetry}
+                  className="w-full bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-700 hover:to-primary-600 text-white font-rpg py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-105"
+                >
+                  Try Again {this.state.retryCount > 0 && `(${this.state.retryCount + 1})`}
+                </button>
+              )}
+              
               <button
-                onClick={this.handleRetry}
-                className="w-full bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-700 hover:to-primary-600 text-white font-rpg py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-105"
+                onClick={this.handleReportError}
+                className="w-full bg-orange-600 hover:bg-orange-700 text-white font-rpg py-2 px-6 rounded-lg transition-all duration-200"
               >
-                Try Again
+                Report This Error
               </button>
               
               <button
@@ -87,6 +177,13 @@ export class ErrorBoundary extends Component<Props, State> {
                 className="w-full bg-slate-600 hover:bg-slate-500 text-white font-rpg py-2 px-6 rounded-lg transition-all duration-200"
               >
                 Restart Adventure
+              </button>
+
+              <button
+                onClick={() => window.history.back()}
+                className="w-full text-slate-400 hover:text-white py-2 px-6 transition-colors"
+              >
+                Go Back
               </button>
             </div>
 
@@ -96,10 +193,16 @@ export class ErrorBoundary extends Component<Props, State> {
                   Error Details (Development)
                 </summary>
                 <div className="mt-2 p-3 bg-slate-800 rounded text-xs text-red-400 font-mono overflow-auto max-h-40">
+                  <div className="mb-2 font-bold">Error ID:</div>
+                  <div className="mb-2">{this.state.errorId}</div>
                   <div className="mb-2 font-bold">Error:</div>
                   <div className="mb-2">{this.state.error.message}</div>
                   <div className="mb-2 font-bold">Stack:</div>
                   <div className="whitespace-pre-wrap">{this.state.error.stack}</div>
+                  <div className="mb-2 font-bold">Component Stack:</div>
+                  <div className="whitespace-pre-wrap">{this.state.errorInfo?.componentStack}</div>
+                  <div className="mb-2 font-bold">Retry Count:</div>
+                  <div>{this.state.retryCount}</div>
                 </div>
               </details>
             )}

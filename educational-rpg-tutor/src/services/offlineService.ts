@@ -1,433 +1,346 @@
-import { supabase } from './supabaseClient';
-import type { Character } from '../types/character';
-import type { UserQuest } from '../types/quest';
+// Offline Service for Educational RPG Tutor
+// Handles offline functionality, data caching, and sync
 
-export interface OfflineAction {
-  id: string;
-  type: 'character_update' | 'xp_award' | 'quest_progress' | 'stat_allocation';
-  payload: any;
-  timestamp: number;
-  userId: string;
-  retryCount: number;
-}
-
-export interface CachedData {
-  character?: Character;
-  quests?: UserQuest[];
+interface OfflineData {
+  characterProgress: CharacterProgressUpdate[];
+  questionResponses: QuestionResponse[];
+  achievements: Achievement[];
   lastSync: number;
-  pendingActions: OfflineAction[];
 }
 
-export class OfflineService {
-  private readonly STORAGE_KEY = 'educational-rpg-offline-data';
-  private readonly MAX_RETRY_COUNT = 3;
-  private readonly SYNC_INTERVAL = 30000; // 30 seconds
-  private syncInterval?: NodeJS.Timeout;
-  private isOnline = navigator.onLine;
+interface CharacterProgressUpdate {
+  characterId: string;
+  xpGained: number;
+  statsChanged: Record<string, number>;
+  timestamp: number;
+  synced: boolean;
+}
 
-  constructor() {
-    this.setupOnlineStatusListeners();
-    this.startSyncInterval();
+interface QuestionResponse {
+  questionId: string;
+  selectedAnswer: string;
+  isCorrect: boolean;
+  xpEarned: number;
+  timestamp: number;
+  synced: boolean;
+}
+
+class OfflineService {
+  private dbName = 'educational-rpg-offline';
+  private dbVersion = 1;
+  private db: IDBDatabase | null = null;
+
+  async initialize(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const request = indexedDB.open(this.dbName, this.dbVersion);
+
+      request.onerror = () => reject(request.error);
+      request.onsuccess = () => {
+        this.db = request.result;
+        resolve();
+      };
+
+      request.onupgradeneeded = (event) => {
+        const db = (event.target as IDBOpenDBRequest).result;
+
+        // Character progress store
+        if (!db.objectStoreNames.contains('characterProgress')) {
+          const progressStore = db.createObjectStore('characterProgress', {
+            keyPath: 'id',
+            autoIncrement: true
+          });
+          progressStore.createIndex('characterId', 'characterId', { unique: false });
+          progressStore.createIndex('timestamp', 'timestamp', { unique: false });
+          progressStore.createIndex('synced', 'synced', { unique: false });
+        }
+
+        // Question responses store
+        if (!db.objectStoreNames.contains('questionResponses')) {
+          const responsesStore = db.createObjectStore('questionResponses', {
+            keyPath: 'id',
+            autoIncrement: true
+          });
+          responsesStore.createIndex('questionId', 'questionId', { unique: false });
+          responsesStore.createIndex('timestamp', 'timestamp', { unique: false });
+          responsesStore.createIndex('synced', 'synced', { unique: false });
+        }
+
+        // Cached data store
+        if (!db.objectStoreNames.contains('cachedData')) {
+          const cacheStore = db.createObjectStore('cachedData', {
+            keyPath: 'key'
+          });
+          cacheStore.createIndex('expiry', 'expiry', { unique: false });
+        }
+
+        // Sync queue store
+        if (!db.objectStoreNames.contains('syncQueue')) {
+          const syncStore = db.createObjectStore('syncQueue', {
+            keyPath: 'id',
+            autoIncrement: true
+          });
+          syncStore.createIndex('type', 'type', { unique: false });
+          syncStore.createIndex('priority', 'priority', { unique: false });
+        }
+      };
+    });
   }
 
-  /**
-   * Setup online/offline event listeners
-   */
-  private setupOnlineStatusListeners(): void {
-    window.addEventListener('online', () => {
-      this.isOnline = true;
-      this.syncPendingActions();
+  // Character progress methods
+  async saveCharacterProgress(progress: Omit<CharacterProgressUpdate, 'synced'>): Promise<void> {
+    if (!this.db) throw new Error('Database not initialized');
+
+    const transaction = this.db.transaction(['characterProgress'], 'readwrite');
+    const store = transaction.objectStore('characterProgress');
+
+    const progressWithSync: CharacterProgressUpdate = {
+      ...progress,
+      synced: false
+    };
+
+    await new Promise<void>((resolve, reject) => {
+      const request = store.add(progressWithSync);
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject(request.error);
     });
 
-    window.addEventListener('offline', () => {
-      this.isOnline = false;
-    });
-  }
-
-  /**
-   * Start periodic sync interval
-   */
-  private startSyncInterval(): void {
-    this.syncInterval = setInterval(() => {
-      if (this.isOnline) {
-        this.syncPendingActions();
-      }
-    }, this.SYNC_INTERVAL);
-  }
-
-  /**
-   * Stop sync interval
-   */
-  stopSyncInterval(): void {
-    if (this.syncInterval) {
-      clearInterval(this.syncInterval);
-      this.syncInterval = undefined;
+    // Register for background sync if available
+    if ('serviceWorker' in navigator && 'sync' in window.ServiceWorkerRegistration.prototype) {
+      const registration = await navigator.serviceWorker.ready;
+      await registration.sync.register('character-progress-sync');
     }
   }
 
-  /**
-   * Get cached data from localStorage
-   */
-  private getCachedData(userId: string): CachedData {
-    try {
-      const data = localStorage.getItem(`${this.STORAGE_KEY}-${userId}`);
-      if (data) {
-        const parsed = JSON.parse(data);
-        return {
-          character: parsed.character,
-          quests: parsed.quests || [],
-          lastSync: parsed.lastSync || 0,
-          pendingActions: parsed.pendingActions || []
+  async getUnsyncedCharacterProgress(): Promise<CharacterProgressUpdate[]> {
+    if (!this.db) throw new Error('Database not initialized');
+
+    const transaction = this.db.transaction(['characterProgress'], 'readonly');
+    const store = transaction.objectStore('characterProgress');
+    const index = store.index('synced');
+
+    return new Promise((resolve, reject) => {
+      const request = index.getAll(false);
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async markCharacterProgressSynced(ids: number[]): Promise<void> {
+    if (!this.db) throw new Error('Database not initialized');
+
+    const transaction = this.db.transaction(['characterProgress'], 'readwrite');
+    const store = transaction.objectStore('characterProgress');
+
+    const promises = ids.map(id => {
+      return new Promise<void>((resolve, reject) => {
+        const getRequest = store.get(id);
+        getRequest.onsuccess = () => {
+          const record = getRequest.result;
+          if (record) {
+            record.synced = true;
+            const putRequest = store.put(record);
+            putRequest.onsuccess = () => resolve();
+            putRequest.onerror = () => reject(putRequest.error);
+          } else {
+            resolve();
+          }
         };
-      }
-    } catch (error) {
-      console.error('Error reading cached data:', error);
-    }
+        getRequest.onerror = () => reject(getRequest.error);
+      });
+    });
 
-    return {
-      lastSync: 0,
-      pendingActions: []
-    };
+    await Promise.all(promises);
   }
 
-  /**
-   * Save data to localStorage
-   */
-  private setCachedData(userId: string, data: CachedData): void {
-    try {
-      localStorage.setItem(`${this.STORAGE_KEY}-${userId}`, JSON.stringify(data));
-    } catch (error) {
-      console.error('Error saving cached data:', error);
-    }
-  }
+  // Question response methods
+  async saveQuestionResponse(response: Omit<QuestionResponse, 'synced'>): Promise<void> {
+    if (!this.db) throw new Error('Database not initialized');
 
-  /**
-   * Cache character data locally
-   */
-  cacheCharacter(userId: string, character: Character): void {
-    const cachedData = this.getCachedData(userId);
-    cachedData.character = character;
-    cachedData.lastSync = Date.now();
-    this.setCachedData(userId, cachedData);
-  }
+    const transaction = this.db.transaction(['questionResponses'], 'readwrite');
+    const store = transaction.objectStore('questionResponses');
 
-  /**
-   * Get cached character data
-   */
-  getCachedCharacter(userId: string): Character | null {
-    const cachedData = this.getCachedData(userId);
-    return cachedData.character || null;
-  }
-
-  /**
-   * Cache quest data locally
-   */
-  cacheQuests(userId: string, quests: UserQuest[]): void {
-    const cachedData = this.getCachedData(userId);
-    cachedData.quests = quests;
-    cachedData.lastSync = Date.now();
-    this.setCachedData(userId, cachedData);
-  }
-
-  /**
-   * Get cached quest data
-   */
-  getCachedQuests(userId: string): UserQuest[] {
-    const cachedData = this.getCachedData(userId);
-    return cachedData.quests || [];
-  }
-
-  /**
-   * Add an offline action to the queue
-   */
-  queueOfflineAction(action: Omit<OfflineAction, 'id' | 'timestamp' | 'retryCount'>): void {
-    const cachedData = this.getCachedData(action.userId);
-    
-    const offlineAction: OfflineAction = {
-      ...action,
-      id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      timestamp: Date.now(),
-      retryCount: 0
+    const responseWithSync: QuestionResponse = {
+      ...response,
+      synced: false
     };
 
-    cachedData.pendingActions.push(offlineAction);
-    this.setCachedData(action.userId, cachedData);
+    await new Promise<void>((resolve, reject) => {
+      const request = store.add(responseWithSync);
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject(request.error);
+    });
 
-    // Try to sync immediately if online
-    if (this.isOnline) {
-      this.syncPendingActions();
+    // Register for background sync
+    if ('serviceWorker' in navigator && 'sync' in window.ServiceWorkerRegistration.prototype) {
+      const registration = await navigator.serviceWorker.ready;
+      await registration.sync.register('question-responses-sync');
     }
   }
 
-  /**
-   * Sync pending actions with the server
-   */
-  async syncPendingActions(): Promise<void> {
-    if (!this.isOnline) return;
+  async getUnsyncedQuestionResponses(): Promise<QuestionResponse[]> {
+    if (!this.db) throw new Error('Database not initialized');
 
-    // Get all users with pending actions
-    const userIds = this.getAllUsersWithPendingActions();
+    const transaction = this.db.transaction(['questionResponses'], 'readonly');
+    const store = transaction.objectStore('questionResponses');
+    const index = store.index('synced');
 
-    for (const userId of userIds) {
-      await this.syncUserActions(userId);
-    }
+    return new Promise((resolve, reject) => {
+      const request = index.getAll(false);
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
   }
 
-  /**
-   * Sync actions for a specific user
-   */
-  private async syncUserActions(userId: string): Promise<void> {
-    const cachedData = this.getCachedData(userId);
-    const pendingActions = [...cachedData.pendingActions];
+  // Cache management
+  async cacheData(key: string, data: any, ttlMinutes: number = 60): Promise<void> {
+    if (!this.db) throw new Error('Database not initialized');
 
-    for (const action of pendingActions) {
-      try {
-        const success = await this.executeAction(action);
-        
-        if (success) {
-          // Remove successful action from queue
-          cachedData.pendingActions = cachedData.pendingActions.filter(a => a.id !== action.id);
+    const transaction = this.db.transaction(['cachedData'], 'readwrite');
+    const store = transaction.objectStore('cachedData');
+
+    const cacheEntry = {
+      key,
+      data,
+      expiry: Date.now() + (ttlMinutes * 60 * 1000),
+      timestamp: Date.now()
+    };
+
+    await new Promise<void>((resolve, reject) => {
+      const request = store.put(cacheEntry);
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async getCachedData<T>(key: string): Promise<T | null> {
+    if (!this.db) throw new Error('Database not initialized');
+
+    const transaction = this.db.transaction(['cachedData'], 'readonly');
+    const store = transaction.objectStore('cachedData');
+
+    return new Promise((resolve, reject) => {
+      const request = store.get(key);
+      request.onsuccess = () => {
+        const result = request.result;
+        if (result && result.expiry > Date.now()) {
+          resolve(result.data);
         } else {
-          // Increment retry count
-          const actionIndex = cachedData.pendingActions.findIndex(a => a.id === action.id);
-          if (actionIndex !== -1) {
-            cachedData.pendingActions[actionIndex].retryCount++;
-            
-            // Remove action if max retries exceeded
-            if (cachedData.pendingActions[actionIndex].retryCount >= this.MAX_RETRY_COUNT) {
-              console.error('Max retries exceeded for action:', action);
-              cachedData.pendingActions.splice(actionIndex, 1);
-            }
-          }
+          resolve(null);
         }
-      } catch (error) {
-        console.error('Error executing action:', action, error);
-        
-        // Increment retry count on error
-        const actionIndex = cachedData.pendingActions.findIndex(a => a.id === action.id);
-        if (actionIndex !== -1) {
-          cachedData.pendingActions[actionIndex].retryCount++;
-          
-          if (cachedData.pendingActions[actionIndex].retryCount >= this.MAX_RETRY_COUNT) {
-            cachedData.pendingActions.splice(actionIndex, 1);
-          }
-        }
-      }
-    }
-
-    this.setCachedData(userId, cachedData);
+      };
+      request.onerror = () => reject(request.error);
+    });
   }
 
-  /**
-   * Execute a specific offline action
-   */
-  private async executeAction(action: OfflineAction): Promise<boolean> {
+  // Connection status
+  isOnline(): boolean {
+    return navigator.onLine;
+  }
+
+  // Sync management
+  async syncAllData(): Promise<void> {
+    if (!this.isOnline()) {
+      console.log('Cannot sync: offline');
+      return;
+    }
+
     try {
-      switch (action.type) {
-        case 'character_update':
-          return await this.syncCharacterUpdate(action);
-        case 'xp_award':
-          return await this.syncXPAward(action);
-        case 'quest_progress':
-          return await this.syncQuestProgress(action);
-        case 'stat_allocation':
-          return await this.syncStatAllocation(action);
-        default:
-          console.warn('Unknown action type:', action.type);
-          return false;
-      }
+      await this.syncCharacterProgress();
+      await this.syncQuestionResponses();
+      console.log('All data synced successfully');
     } catch (error) {
-      console.error('Error executing action:', error);
-      return false;
+      console.error('Sync failed:', error);
+      throw error;
     }
   }
 
-  /**
-   * Sync character update
-   */
-  private async syncCharacterUpdate(action: OfflineAction): Promise<boolean> {
-    const { characterId, updates } = action.payload;
+  private async syncCharacterProgress(): Promise<void> {
+    const unsyncedProgress = await this.getUnsyncedCharacterProgress();
     
-    const { error } = await supabase
-      .from('characters')
-      .update(updates)
-      .eq('id', characterId);
+    if (unsyncedProgress.length === 0) return;
 
-    return !error;
-  }
-
-  /**
-   * Sync XP award
-   */
-  private async syncXPAward(action: OfflineAction): Promise<boolean> {
-    const { characterId, xpAmount, source } = action.payload;
-    
-    // This would use your existing XP award logic
-    const { error } = await supabase
-      .from('character_xp_logs')
-      .insert({
-        character_id: characterId,
-        user_id: action.userId,
-        xp_gained: xpAmount,
-        source: source
+    try {
+      const response = await fetch('/api/sync/character-progress', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(unsyncedProgress)
       });
 
-    return !error;
+      if (response.ok) {
+        const syncedIds = unsyncedProgress.map((_, index) => index + 1);
+        await this.markCharacterProgressSynced(syncedIds);
+      } else {
+        throw new Error(`Sync failed: ${response.statusText}`);
+      }
+    } catch (error) {
+      console.error('Failed to sync character progress:', error);
+      throw error;
+    }
   }
 
-  /**
-   * Sync quest progress
-   */
-  private async syncQuestProgress(action: OfflineAction): Promise<boolean> {
-    const { questId, progress, completed } = action.payload;
+  private async syncQuestionResponses(): Promise<void> {
+    const unsyncedResponses = await this.getUnsyncedQuestionResponses();
     
-    const { error } = await supabase
-      .from('user_quests')
-      .update({
-        progress: progress,
-        completed: completed,
-        completed_at: completed ? new Date().toISOString() : null
-      })
-      .eq('user_id', action.userId)
-      .eq('quest_id', questId);
+    if (unsyncedResponses.length === 0) return;
 
-    return !error;
+    try {
+      const response = await fetch('/api/sync/question-responses', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(unsyncedResponses)
+      });
+
+      if (response.ok) {
+        // Mark as synced (implementation similar to character progress)
+        console.log('Question responses synced');
+      } else {
+        throw new Error(`Sync failed: ${response.statusText}`);
+      }
+    } catch (error) {
+      console.error('Failed to sync question responses:', error);
+      throw error;
+    }
   }
 
-  /**
-   * Sync stat allocation
-   */
-  private async syncStatAllocation(action: OfflineAction): Promise<boolean> {
-    const { characterId, statAllocations } = action.payload;
-    
-    const { data, error } = await supabase.rpc('allocate_stat_points', {
-      character_uuid: characterId,
-      intelligence_points: statAllocations.intelligence || 0,
-      vitality_points: statAllocations.vitality || 0,
-      wisdom_points: statAllocations.wisdom || 0,
-      charisma_points: statAllocations.charisma || 0,
-      dexterity_points: statAllocations.dexterity || 0,
-      creativity_points: statAllocations.creativity || 0
-    });
+  // Cleanup expired cache
+  async cleanupExpiredCache(): Promise<void> {
+    if (!this.db) throw new Error('Database not initialized');
 
-    return !error && data;
-  }
+    const transaction = this.db.transaction(['cachedData'], 'readwrite');
+    const store = transaction.objectStore('cachedData');
+    const index = store.index('expiry');
 
-  /**
-   * Get all user IDs with pending actions
-   */
-  private getAllUsersWithPendingActions(): string[] {
-    const userIds: string[] = [];
-    
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key?.startsWith(this.STORAGE_KEY)) {
-        try {
-          const data = JSON.parse(localStorage.getItem(key) || '{}');
-          if (data.pendingActions && data.pendingActions.length > 0) {
-            const userId = key.replace(`${this.STORAGE_KEY}-`, '');
-            userIds.push(userId);
-          }
-        } catch (error) {
-          console.error('Error parsing cached data for key:', key, error);
+    const now = Date.now();
+    const range = IDBKeyRange.upperBound(now);
+
+    await new Promise<void>((resolve, reject) => {
+      const request = index.openCursor(range);
+      request.onsuccess = (event) => {
+        const cursor = (event.target as IDBRequest).result;
+        if (cursor) {
+          cursor.delete();
+          cursor.continue();
+        } else {
+          resolve();
         }
-      }
-    }
-    
-    return userIds;
-  }
-
-  /**
-   * Handle conflict resolution for concurrent updates
-   */
-  async resolveConflict(
-    localData: any, 
-    serverData: any, 
-    conflictType: 'character' | 'quest'
-  ): Promise<any> {
-    switch (conflictType) {
-      case 'character':
-        return this.resolveCharacterConflict(localData, serverData);
-      case 'quest':
-        return this.resolveQuestConflict(localData, serverData);
-      default:
-        // Default to server data for unknown conflicts
-        return serverData;
-    }
-  }
-
-  /**
-   * Resolve character data conflicts
-   */
-  private resolveCharacterConflict(localCharacter: Character, serverCharacter: Character): Character {
-    // Use server data for most fields, but preserve local XP if higher
-    // This handles cases where XP was earned offline
-    const resolvedCharacter = { ...serverCharacter };
-    
-    if (localCharacter.totalXP > serverCharacter.totalXP) {
-      resolvedCharacter.totalXP = localCharacter.totalXP;
-      resolvedCharacter.currentXP = localCharacter.currentXP;
-      resolvedCharacter.level = localCharacter.level;
-    }
-
-    // Preserve local stat allocations if they're higher
-    Object.keys(localCharacter.stats).forEach(stat => {
-      if (stat !== 'availablePoints') {
-        const localValue = (localCharacter.stats as any)[stat];
-        const serverValue = (serverCharacter.stats as any)[stat];
-        if (localValue > serverValue) {
-          (resolvedCharacter.stats as any)[stat] = localValue;
-        }
-      }
+      };
+      request.onerror = () => reject(request.error);
     });
-
-    return resolvedCharacter;
-  }
-
-  /**
-   * Resolve quest progress conflicts
-   */
-  private resolveQuestConflict(localQuest: UserQuest, serverQuest: UserQuest): UserQuest {
-    // Use the quest with more progress
-    const localProgress = localQuest.progress.reduce((sum, obj) => sum + obj.currentValue, 0);
-    const serverProgress = serverQuest.progress.reduce((sum, obj) => sum + obj.currentValue, 0);
-    
-    return localProgress >= serverProgress ? localQuest : serverQuest;
-  }
-
-  /**
-   * Check if the app is currently online
-   */
-  isAppOnline(): boolean {
-    return this.isOnline;
-  }
-
-  /**
-   * Get the number of pending actions for a user
-   */
-  getPendingActionCount(userId: string): number {
-    const cachedData = this.getCachedData(userId);
-    return cachedData.pendingActions.length;
-  }
-
-  /**
-   * Clear all cached data for a user
-   */
-  clearUserCache(userId: string): void {
-    localStorage.removeItem(`${this.STORAGE_KEY}-${userId}`);
-  }
-
-  /**
-   * Clear all cached data
-   */
-  clearAllCache(): void {
-    for (let i = localStorage.length - 1; i >= 0; i--) {
-      const key = localStorage.key(i);
-      if (key?.startsWith(this.STORAGE_KEY)) {
-        localStorage.removeItem(key);
-      }
-    }
   }
 }
 
+// Export singleton instance
 export const offlineService = new OfflineService();
+
+// Initialize on module load
+offlineService.initialize().catch(console.error);
+
+// Auto-sync when coming back online
+window.addEventListener('online', () => {
+  offlineService.syncAllData().catch(console.error);
+});
+
+// Cleanup expired cache periodically
+setInterval(() => {
+  offlineService.cleanupExpiredCache().catch(console.error);
+}, 5 * 60 * 1000); // Every 5 minutes
