@@ -8,12 +8,6 @@ export default defineConfig({
     // Production optimizations
     target: 'es2015',
     minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: true,
-        drop_debugger: true,
-      } as any,
-    },
     rollupOptions: {
       output: {
         // Manual chunk splitting for better caching

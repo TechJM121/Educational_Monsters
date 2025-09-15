@@ -3,13 +3,14 @@ import { render, screen } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { ProtectedRoute } from '../ProtectedRoute';
 import { useSupabase } from '../../../hooks/useSupabase';
+import { vi } from 'vitest';
 
 // Mock the useSupabase hook
-jest.mock('../../../hooks/useSupabase');
-const mockUseSupabase = useSupabase as jest.MockedFunction<typeof useSupabase>;
+vi.mock('../../../hooks/useSupabase');
+const mockUseSupabase = useSupabase as any;
 
 // Mock the LoadingSpinner component
-jest.mock('../../shared/LoadingSpinner', () => ({
+vi.mock('../../shared/LoadingSpinner', () => ({
   LoadingSpinner: ({ text }: { text?: string }) => (
     <div data-testid="loading-spinner">{text}</div>
   )
@@ -27,17 +28,17 @@ const renderWithRouter = (component: React.ReactElement) => {
 
 describe('ProtectedRoute', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('shows loading spinner when authentication is loading', () => {
     mockUseSupabase.mockReturnValue({
       user: null,
       loading: true,
-      signIn: jest.fn(),
-      signUp: jest.fn(),
-      signOut: jest.fn(),
-      resetPassword: jest.fn()
+      signIn: vi.fn(),
+      signUp: vi.fn(),
+      signOut: vi.fn(),
+      resetPassword: vi.fn()
     });
 
     renderWithRouter(
@@ -54,10 +55,10 @@ describe('ProtectedRoute', () => {
     mockUseSupabase.mockReturnValue({
       user: { id: '123', email: 'test@example.com' } as any,
       loading: false,
-      signIn: jest.fn(),
-      signUp: jest.fn(),
-      signOut: jest.fn(),
-      resetPassword: jest.fn()
+      signIn: vi.fn(),
+      signUp: vi.fn(),
+      signOut: vi.fn(),
+      resetPassword: vi.fn()
     });
 
     renderWithRouter(
@@ -73,10 +74,10 @@ describe('ProtectedRoute', () => {
     mockUseSupabase.mockReturnValue({
       user: null,
       loading: false,
-      signIn: jest.fn(),
-      signUp: jest.fn(),
-      signOut: jest.fn(),
-      resetPassword: jest.fn()
+      signIn: vi.fn(),
+      signUp: vi.fn(),
+      signOut: vi.fn(),
+      resetPassword: vi.fn()
     });
 
     renderWithRouter(
@@ -92,10 +93,10 @@ describe('ProtectedRoute', () => {
     mockUseSupabase.mockReturnValue({
       user: null,
       loading: false,
-      signIn: jest.fn(),
-      signUp: jest.fn(),
-      signOut: jest.fn(),
-      resetPassword: jest.fn()
+      signIn: vi.fn(),
+      signUp: vi.fn(),
+      signOut: vi.fn(),
+      resetPassword: vi.fn()
     });
 
     renderWithRouter(
@@ -112,10 +113,10 @@ describe('ProtectedRoute', () => {
     mockUseSupabase.mockReturnValue({
       user: { id: '123', email: 'test@example.com' } as any,
       loading: false,
-      signIn: jest.fn(),
-      signUp: jest.fn(),
-      signOut: jest.fn(),
-      resetPassword: jest.fn()
+      signIn: vi.fn(),
+      signUp: vi.fn(),
+      signOut: vi.fn(),
+      resetPassword: vi.fn()
     });
 
     renderWithRouter(

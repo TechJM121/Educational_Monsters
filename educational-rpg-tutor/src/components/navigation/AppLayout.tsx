@@ -3,8 +3,15 @@ import { Outlet } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { RPGNavigationMenu } from './RPGNavigationMenu';
 import { BreadcrumbNavigation } from './BreadcrumbNavigation';
-import { NavigationItem } from '../../types/navigation';
 import { useSupabase } from '../../hooks/useSupabase';
+
+interface NavigationItem {
+  path: string;
+  label: string;
+  icon: string;
+  requiresAuth: boolean;
+  children?: NavigationItem[];
+}
 
 const navigationItems: NavigationItem[] = [
   {

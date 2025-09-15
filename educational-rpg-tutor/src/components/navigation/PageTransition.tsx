@@ -1,6 +1,12 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { PageTransition as PageTransitionType } from '../../types/navigation';
+
+interface PageTransitionType {
+  initial: object;
+  animate: object;
+  exit: object;
+  transition: object;
+}
 
 interface PageTransitionProps {
   children: React.ReactNode;

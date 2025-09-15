@@ -1,7 +1,14 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { NavigationItem } from '../../types/navigation';
+
+interface NavigationItem {
+  path: string;
+  label: string;
+  icon: string;
+  requiresAuth: boolean;
+  children?: NavigationItem[];
+}
 
 interface RPGNavigationMenuProps {
   isOpen: boolean;

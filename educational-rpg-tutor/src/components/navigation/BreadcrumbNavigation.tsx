@@ -1,7 +1,12 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { BreadcrumbItem } from '../../types/navigation';
+
+interface BreadcrumbItem {
+  label: string;
+  path?: string;
+  isActive: boolean;
+}
 
 interface BreadcrumbNavigationProps {
   items?: BreadcrumbItem[];
