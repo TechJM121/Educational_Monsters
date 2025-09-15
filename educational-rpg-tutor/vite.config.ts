@@ -3,7 +3,19 @@ import react from '@vitejs/plugin-react'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    // Service Worker plugin
+    {
+      name: 'service-worker',
+      configureServer(server) {
+        server.middlewares.use('/sw.js', (req, res, next) => {
+          res.setHeader('Service-Worker-Allowed', '/');
+          next();
+        });
+      },
+    },
+  ],
   build: {
     // Production optimizations
     target: 'es2015',
