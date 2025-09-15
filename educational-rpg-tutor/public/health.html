@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Health Check</title>
+    <meta charset="utf-8">
+</head>
+<body>
+    <script>
+        // Health check endpoint for monitoring
+        const healthCheck = {
+            status: 'healthy',
+            timestamp: new Date().toISOString(),
+            version: '1.0.0',
+            environment: window.location.hostname.includes('staging') ? 'staging' : 'production'
+        };
+        
+        document.body.innerHTML = `
+            <h1>Educational RPG Tutor - Health Check</h1>
+            <pre>${JSON.stringify(healthCheck, null, 2)}</pre>
+        `;
+        
+        // Set response headers for monitoring tools
+        if (typeof Response !== 'undefined') {
+            const response = new Response(JSON.stringify(healthCheck), {
+                status: 200,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Cache-Control': 'no-cache'
+                }
+            });
+        }
+    </script>
+</body>
+</html>

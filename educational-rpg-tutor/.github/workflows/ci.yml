@@ -1,0 +1,202 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        cache-dependency-path: educational-rpg-tutor/package-lock.json
+        
+    - name: Install dependencies
+      run: |
+        cd educational-rpg-tutor
+        npm ci
+        
+    - name: Run linting
+      run: |
+        cd educational-rpg-tutor
+        npm run lint
+        
+    - name: Run unit tests
+      run: |
+        cd educational-rpg-tutor
+        npm run test:unit
+        
+    - name: Run integration tests
+      run: |
+        cd educational-rpg-tutor
+        npm run test:integration
+        
+    - name: Run accessibility tests
+      run: |
+        cd educational-rpg-tutor
+        npm run test:accessibility
+        
+    - name: Run security tests
+      run: |
+        cd educational-rpg-tutor
+        npm run test:security
+        
+    - name: Run load tests
+      run: |
+        cd educational-rpg-tutor
+        npm run test src/test/load/**/*.test.ts
+        
+    - name: Generate test coverage
+      run: |
+        cd educational-rpg-tutor
+        npm run test:coverage
+        
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: educational-rpg-tutor/coverage/lcov.info
+        flags: unittests
+        name: codecov-umbrella
+        
+  e2e-tests:
+    runs-on: ubuntu-latest
+    needs: test
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+        cache-dependency-path: educational-rpg-tutor/package-lock.json
+        
+    - name: Install dependencies
+      run: |
+        cd educational-rpg-tutor
+        npm ci
+        
+    - name: Build application
+      run: |
+        cd educational-rpg-tutor
+        npm run build
+        
+    - name: Start application
+      run: |
+        cd educational-rpg-tutor
+        npm run preview &
+        sleep 10
+        
+    - name: Run Cypress E2E tests
+      uses: cypress-io/github-action@v6
+      with:
+        working-directory: educational-rpg-tutor
+        wait-on: 'http://localhost:4173'
+        wait-on-timeout: 120
+        browser: chrome
+        record: true
+      env:
+        CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Upload Cypress screenshots
+      uses: actions/upload-artifact@v3
+      if: failure()
+      with:
+        name: cypress-screenshots
+        path: educational-rpg-tutor/cypress/screenshots
+        
+    - name: Upload Cypress videos
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: cypress-videos
+        path: educational-rpg-tutor/cypress/videos
+        
+  performance-tests:
+    runs-on: ubuntu-latest
+    needs: test
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+        cache-dependency-path: educational-rpg-tutor/package-lock.json
+        
+    - name: Install dependencies
+      run: |
+        cd educational-rpg-tutor
+        npm ci
+        
+    - name: Build application
+      run: |
+        cd educational-rpg-tutor
+        npm run build
+        
+    - name: Start application
+      run: |
+        cd educational-rpg-tutor
+        npm run preview &
+        sleep 10
+        
+    - name: Run Lighthouse performance tests
+      run: |
+        cd educational-rpg-tutor
+        mkdir -p test-results
+        npm run test:performance
+        
+    - name: Upload Lighthouse results
+      uses: actions/upload-artifact@v3
+      with:
+        name: lighthouse-results
+        path: educational-rpg-tutor/test-results/lighthouse.json
+        
+  security-audit:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+        cache-dependency-path: educational-rpg-tutor/package-lock.json
+        
+    - name: Install dependencies
+      run: |
+        cd educational-rpg-tutor
+        npm ci
+        
+    - name: Run npm audit
+      run: |
+        cd educational-rpg-tutor
+        npm audit --audit-level=moderate
+        
+    - name: Run security tests
+      run: |
+        cd educational-rpg-tutor
+        npm run test:security

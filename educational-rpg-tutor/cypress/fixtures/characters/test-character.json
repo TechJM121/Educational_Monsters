@@ -1,0 +1,27 @@
+{
+  "id": "test-character-id",
+  "user_id": "student-user-id",
+  "name": "Test Hero",
+  "level": 1,
+  "total_xp": 85,
+  "current_xp": 85,
+  "avatar_config": {
+    "hairColor": "#8B4513",
+    "skinColor": "#FDBCB4",
+    "outfit": "casual",
+    "accessories": []
+  },
+  "stats": {
+    "intelligence": 10,
+    "vitality": 10,
+    "wisdom": 10,
+    "charisma": 10,
+    "dexterity": 10,
+    "creativity": 10,
+    "available_points": 0
+  },
+  "specialization": null,
+  "equipped_items": [],
+  "created_at": "2024-01-01T00:00:00Z",
+  "updated_at": "2024-01-01T00:00:00Z"
+}

@@ -1,0 +1,57 @@
+[
+  {
+    "id": "science-q1",
+    "subject_id": "science",
+    "question_text": "What is H2O?",
+    "answer_options": ["Water", "Oxygen", "Hydrogen", "Carbon dioxide"],
+    "correct_answer": "Water",
+    "difficulty_level": 1,
+    "xp_reward": 10,
+    "age_range": "6-8",
+    "created_at": "2024-01-01T00:00:00Z"
+  },
+  {
+    "id": "science-q2",
+    "subject_id": "science",
+    "question_text": "How many legs does a spider have?",
+    "answer_options": ["6", "8", "10", "12"],
+    "correct_answer": "8",
+    "difficulty_level": 1,
+    "xp_reward": 10,
+    "age_range": "6-8",
+    "created_at": "2024-01-01T00:00:00Z"
+  },
+  {
+    "id": "science-q3",
+    "subject_id": "science",
+    "question_text": "What planet is closest to the Sun?",
+    "answer_options": ["Venus", "Earth", "Mercury", "Mars"],
+    "correct_answer": "Mercury",
+    "difficulty_level": 2,
+    "xp_reward": 15,
+    "age_range": "8-10",
+    "created_at": "2024-01-01T00:00:00Z"
+  },
+  {
+    "id": "science-q4",
+    "subject_id": "science",
+    "question_text": "What gas do plants absorb from the atmosphere?",
+    "answer_options": ["Oxygen", "Nitrogen", "Carbon dioxide", "Hydrogen"],
+    "correct_answer": "Carbon dioxide",
+    "difficulty_level": 2,
+    "xp_reward": 15,
+    "age_range": "8-10",
+    "created_at": "2024-01-01T00:00:00Z"
+  },
+  {
+    "id": "science-q5",
+    "subject_id": "science",
+    "question_text": "What is the chemical symbol for gold?",
+    "answer_options": ["Go", "Gd", "Au", "Ag"],
+    "correct_answer": "Au",
+    "difficulty_level": 3,
+    "xp_reward": 20,
+    "age_range": "10-12",
+    "created_at": "2024-01-01T00:00:00Z"
+  }
+]
