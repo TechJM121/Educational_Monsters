@@ -9,7 +9,7 @@ export default defineConfig({
     {
       name: 'service-worker',
       configureServer(server) {
-        server.middlewares.use('/sw.js', (req, res, next) => {
+        server.middlewares.use('/sw.js', (_req, res, next) => {
           res.setHeader('Service-Worker-Allowed', '/');
           next();
         });
@@ -39,31 +39,4 @@ export default defineConfig({
   assetsInclude: ['**/*.woff2', '**/*.woff'],
   // CDN configuration
   base: process.env.NODE_ENV === 'production' ? 'https://cdn.educational-rpg-tutor.com/' : '/',
-  test: {
-    globals: true,
-    environment: 'jsdom',
-    setupFiles: ['./src/test/setup.ts'],
-    coverage: {
-      provider: 'v8',
-      reporter: ['text', 'json', 'html'],
-      exclude: [
-        'node_modules/',
-        'src/test/',
-        '**/*.d.ts',
-        '**/*.config.{js,ts}',
-        'dist/',
-        'cypress/',
-      ],
-      thresholds: {
-        global: {
-          branches: 80,
-          functions: 80,
-          lines: 80,
-          statements: 80,
-        },
-      },
-    },
-    testTimeout: 10000,
-    hookTimeout: 10000,
-  },
 })

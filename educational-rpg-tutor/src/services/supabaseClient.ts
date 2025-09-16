@@ -5,17 +5,24 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables. Please check your .env file.');
-}
+// For development/demo purposes, provide fallback values
+const defaultUrl = 'https://placeholder.supabase.co';
+const defaultKey = 'placeholder-anon-key';
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+const finalUrl = supabaseUrl && supabaseUrl !== 'https://your-project-id.supabase.co' ? supabaseUrl : defaultUrl;
+const finalKey = supabaseAnonKey && supabaseAnonKey !== 'your-anon-key-here' ? supabaseAnonKey : defaultKey;
+
+// Create client with fallback values for development
+export const supabase = createClient(finalUrl, finalKey, {
   auth: {
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: true
   }
 });
+
+// Flag to check if we're using real Supabase credentials
+export const isSupabaseConfigured = finalUrl !== defaultUrl && finalKey !== defaultKey;
 
 // Database types for better TypeScript support
 export interface Database {

@@ -17,11 +17,11 @@
   }
   
   .font-rpg {
-    font-family: var(--font-rpg);
+    font-family: 'Cinzel', serif;
   }
   
   .font-fantasy {
-    font-family: var(--font-fantasy);
+    font-family: 'MedievalSharp', cursive;
   }
 }
 
@@ -93,56 +93,6 @@
     @apply bg-gradient-to-br from-purple-500 to-purple-700;
     @apply text-white font-bold rounded-full w-12 h-12;
     @apply flex items-center justify-center;
-    @apply border-3 border-purple-300 shadow-lg;
-    @apply animate-glow;
-  }
-}/* Custom
- RPG styles */
-@layer utilities {
-  .bg-stripes {
-    background-image: repeating-linear-gradient(
-      45deg,
-      transparent,
-      transparent 10px,
-      rgba(255, 255, 255, 0.1) 10px,
-      rgba(255, 255, 255, 0.1) 20px
-    );
-  }
-}
-
-@layer base {
-  :root {
-    font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-    line-height: 1.5;
-    font-weight: 400;
-  }
-
-  body {
-    @apply bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900;
-    @apply text-white min-h-screen;
-    background-attachment: fixed;
-  }
-
-  h1, h2, h3, h4, h5, h6 {
-    @apply font-rpg;
-  }
-}
-
-@layer components {
-  .rpg-button {
-    @apply bg-gradient-to-r from-primary-600 to-primary-500;
-    @apply hover:from-primary-700 hover:to-primary-600;
-    @apply text-white font-semibold py-2 px-4 rounded-lg;
-    @apply transform transition-all duration-200;
-    @apply hover:scale-105 hover:shadow-lg;
-    @apply active:scale-95;
-    @apply border-2 border-primary-400;
-  }
-
-  .rpg-card {
-    @apply bg-gradient-to-br from-slate-800 to-slate-900;
-    @apply border border-slate-700 rounded-xl p-6;
-    @apply shadow-xl backdrop-blur-sm;
-    @apply hover:border-primary-500 transition-all duration-300;
+    @apply border-2 border-purple-300 shadow-lg;
   }
 }

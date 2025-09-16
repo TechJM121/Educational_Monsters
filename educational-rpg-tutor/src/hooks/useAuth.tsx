@@ -2,7 +2,12 @@
 
 import { useContext, createContext, useReducer, useEffect, ReactNode } from 'react';
 import { AuthService } from '../services/authService';
+import { MockAuthService } from '../services/mockAuthService';
+import { isSupabaseConfigured } from '../services/supabaseClient';
 import type { AuthState, AuthAction, AuthContextType, SignUpData, SignInData, ParentalConsentData } from '../types/auth';
+
+// Use mock service if Supabase isn't configured
+const authService = isSupabaseConfigured ? AuthService : MockAuthService;
 
 // Initial auth state
 const initialState: AuthState = {
@@ -46,7 +51,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         dispatch({ type: 'SET_LOADING', payload: true });
         
         // Get current user profile
-        const profile = await AuthService.getCurrentUserProfile();
+        const profile = await authService.getCurrentUserProfile();
         
         if (mounted) {
           if (profile) {
@@ -70,11 +75,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     initializeAuth();
     
     // Listen to auth changes
-    const { data: { subscription } } = AuthService.onAuthStateChange(async (event, session) => {
+    const { data: { subscription } } = authService.onAuthStateChange(async (event, session) => {
       if (!mounted) return;
       
       if (event === 'SIGNED_IN' && session?.user) {
-        const profile = await AuthService.getCurrentUserProfile();
+        const profile = await authService.getCurrentUserProfile();
         dispatch({ type: 'SET_USER', payload: {
           id: session.user.id,
           email: session.user.email || '',
@@ -99,7 +104,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       dispatch({ type: 'SET_LOADING', payload: true });
       dispatch({ type: 'CLEAR_ERROR' });
       
-      const result = await AuthService.signUp(data);
+      const result = await authService.signUp(data);
       
       if (result.needsParentalConsent) {
         dispatch({ type: 'SET_ERROR', payload: 'Account created! Parental consent email has been sent. Please check your parent\'s email to activate your account.' });
@@ -127,14 +132,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       dispatch({ type: 'SET_LOADING', payload: true });
       dispatch({ type: 'CLEAR_ERROR' });
       
-      const result = await AuthService.signIn(data);
+      const result = await authService.signIn(data);
       
       if (result.user) {
         // Check if user needs parental consent
-        const needsConsent = await AuthService.needsParentalConsent(result.user.id);
+        const needsConsent = await authService.needsParentalConsent(result.user.id);
         
         if (needsConsent) {
-          await AuthService.signOut();
+          await authService.signOut();
           dispatch({ type: 'SET_ERROR', payload: 'Your account is waiting for parental consent. Please ask your parent to check their email.' });
           dispatch({ type: 'SET_LOADING', payload: false });
           return;
@@ -147,7 +152,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }});
         
         // Fetch profile
-        const profile = await AuthService.getCurrentUserProfile();
+        const profile = await authService.getCurrentUserProfile();
         dispatch({ type: 'SET_PROFILE', payload: profile });
       }
       
@@ -161,7 +166,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = async () => {
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
-      await AuthService.signOut();
+      await authService.signOut();
       dispatch({ type: 'SET_USER', payload: null });
       dispatch({ type: 'SET_PROFILE', payload: null });
       dispatch({ type: 'SET_LOADING', payload: false });
@@ -176,7 +181,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       dispatch({ type: 'SET_LOADING', payload: true });
       dispatch({ type: 'CLEAR_ERROR' });
       
-      await AuthService.sendParentalConsentRequest(childId, parentEmail, state.profile?.name || 'Student');
+      await authService.sendParentalConsentRequest(childId, parentEmail, state.profile?.name || 'Student');
       
       dispatch({ type: 'SET_ERROR', payload: 'Parental consent request sent successfully!' });
       dispatch({ type: 'SET_LOADING', payload: false });
@@ -191,7 +196,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       dispatch({ type: 'SET_LOADING', payload: true });
       dispatch({ type: 'CLEAR_ERROR' });
       
-      await AuthService.grantParentalConsent(consentData);
+      await authService.grantParentalConsent(consentData);
       
       dispatch({ type: 'SET_ERROR', payload: 'Parental consent processed successfully!' });
       dispatch({ type: 'SET_LOADING', payload: false });
