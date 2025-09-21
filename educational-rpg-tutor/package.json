@@ -34,12 +34,15 @@
     "postbuild": "echo 'Build completed successfully'"
   },
   "dependencies": {
+    "@react-spring/web": "^10.0.3",
     "@supabase/supabase-js": "^2.57.4",
     "@types/react-router-dom": "^5.3.3",
+    "@types/three": "^0.180.0",
     "framer-motion": "^12.23.12",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
-    "react-router-dom": "^7.9.1"
+    "react-router-dom": "^7.9.1",
+    "three": "^0.180.0"
   },
   "devDependencies": {
     "@axe-core/react": "^4.8.4",

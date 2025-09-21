@@ -7,7 +7,7 @@ export default {
   theme: {
     extend: {
       colors: {
-        // RPG-themed color palette
+        // Modern glassmorphic color palette
         primary: {
           50: '#fef7ee',
           100: '#fdedd3',
@@ -44,10 +44,104 @@ export default {
           800: '#86198f',
           900: '#701a75',
         },
+        // Glassmorphic design tokens
+        glass: {
+          white: 'rgba(255, 255, 255, 0.1)',
+          'white-light': 'rgba(255, 255, 255, 0.05)',
+          'white-medium': 'rgba(255, 255, 255, 0.15)',
+          'white-strong': 'rgba(255, 255, 255, 0.25)',
+          dark: 'rgba(0, 0, 0, 0.1)',
+          'dark-light': 'rgba(0, 0, 0, 0.05)',
+          'dark-medium': 'rgba(0, 0, 0, 0.15)',
+          'dark-strong': 'rgba(0, 0, 0, 0.25)',
+        },
+        // Modern gradient colors
+        gradient: {
+          'cosmic-start': '#667eea',
+          'cosmic-end': '#764ba2',
+          'sunset-start': '#f093fb',
+          'sunset-end': '#f5576c',
+          'ocean-start': '#4facfe',
+          'ocean-end': '#00f2fe',
+          'forest-start': '#43e97b',
+          'forest-end': '#38f9d7',
+        },
       },
       fontFamily: {
         'rpg': ['Cinzel', 'serif'],
         'fantasy': ['MedievalSharp', 'cursive'],
+        'modern': ['Inter', 'system-ui', 'sans-serif'],
+        'display': ['Poppins', 'system-ui', 'sans-serif'],
+      },
+      fontSize: {
+        'xs': ['clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem)', { lineHeight: '1.4' }],
+        'sm': ['clamp(0.875rem, 0.8rem + 0.375vw, 1rem)', { lineHeight: '1.5' }],
+        'base': ['clamp(1rem, 0.9rem + 0.5vw, 1.125rem)', { lineHeight: '1.6' }],
+        'lg': ['clamp(1.125rem, 1rem + 0.625vw, 1.25rem)', { lineHeight: '1.5' }],
+        'xl': ['clamp(1.25rem, 1.1rem + 0.75vw, 1.5rem)', { lineHeight: '1.4' }],
+        '2xl': ['clamp(1.5rem, 1.3rem + 1vw, 2rem)', { lineHeight: '1.3' }],
+        '3xl': ['clamp(2rem, 1.7rem + 1.5vw, 3rem)', { lineHeight: '1.2' }],
+      },
+      backdropBlur: {
+        'xs': '2px',
+        'sm': '4px',
+        'md': '8px',
+        'lg': '12px',
+        'xl': '16px',
+        '2xl': '24px',
+        '3xl': '32px',
+      },
+      boxShadow: {
+        'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.37)',
+        'glass-sm': '0 4px 16px 0 rgba(31, 38, 135, 0.25)',
+        'glass-lg': '0 16px 64px 0 rgba(31, 38, 135, 0.45)',
+        'glow': '0 0 20px rgba(139, 92, 246, 0.3)',
+        'glow-sm': '0 0 10px rgba(139, 92, 246, 0.2)',
+        'glow-lg': '0 0 40px rgba(139, 92, 246, 0.4)',
+        'depth': '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+        'depth-sm': '0 10px 25px -5px rgba(0, 0, 0, 0.1)',
+        'depth-lg': '0 35px 60px -12px rgba(0, 0, 0, 0.35)',
+      },
+      animation: {
+        'float': 'float 6s ease-in-out infinite',
+        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'shimmer': 'shimmer 2s linear infinite',
+        'wave': 'wave 1.5s ease-in-out infinite',
+        'glow': 'glow 2s ease-in-out infinite alternate',
+        'particle-float': 'particle-float 8s ease-in-out infinite',
+      },
+      keyframes: {
+        float: {
+          '0%, 100%': { transform: 'translateY(0px)' },
+          '50%': { transform: 'translateY(-10px)' },
+        },
+        shimmer: {
+          '0%': { transform: 'translateX(-100%)' },
+          '100%': { transform: 'translateX(100%)' },
+        },
+        wave: {
+          '0%, 100%': { transform: 'scaleY(1)' },
+          '50%': { transform: 'scaleY(1.1)' },
+        },
+        glow: {
+          '0%': { boxShadow: '0 0 20px rgba(139, 92, 246, 0.3)' },
+          '100%': { boxShadow: '0 0 30px rgba(139, 92, 246, 0.6)' },
+        },
+        'particle-float': {
+          '0%, 100%': { transform: 'translateY(0px) rotate(0deg)' },
+          '33%': { transform: 'translateY(-20px) rotate(120deg)' },
+          '66%': { transform: 'translateY(10px) rotate(240deg)' },
+        },
+      },
+      spacing: {
+        '18': '4.5rem',
+        '88': '22rem',
+        '128': '32rem',
+      },
+      borderRadius: {
+        'xl': '1rem',
+        '2xl': '1.5rem',
+        '3xl': '2rem',
       },
     },
   },

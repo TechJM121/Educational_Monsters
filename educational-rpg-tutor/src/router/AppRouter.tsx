@@ -15,13 +15,21 @@ import { AchievementsPage } from '../pages/AchievementsPage';
 import { InventoryPage } from '../pages/InventoryPage';
 import { LeaderboardPage } from '../pages/LeaderboardPage';
 import { ParentDashboardPage } from '../pages/ParentDashboardPage';
+import { LandingPage } from '../components/landing/LandingPage';
 
 export const AppRouter: React.FC = () => {
   return (
     <BrowserRouter>
       <AnimatePresence mode="wait">
         <Routes>
-          {/* Public routes (no navigation) */}
+          {/* Landing page (public, no navigation) */}
+          <Route path="/" element={
+            <ProtectedRoute requiresAuth={false}>
+              <LandingPage />
+            </ProtectedRoute>
+          } />
+
+          {/* Auth page (public, no navigation) */}
           <Route path="/auth" element={
             <ProtectedRoute requiresAuth={false}>
               <AppLayout showNavigation={false}>
@@ -31,9 +39,9 @@ export const AppRouter: React.FC = () => {
           } />
 
           {/* Protected routes (with navigation) */}
-          <Route path="/" element={<AppLayout />}>
-            {/* Redirect root to home */}
-            <Route index element={<Navigate to="/home" replace />} />
+          <Route path="/app" element={<AppLayout />}>
+            {/* Redirect app root to home */}
+            <Route index element={<Navigate to="/app/home" replace />} />
             
             {/* Main pages */}
             <Route path="home" element={

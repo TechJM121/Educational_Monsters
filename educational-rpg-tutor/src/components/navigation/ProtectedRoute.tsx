@@ -28,8 +28,8 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   }
 
   if (!requiresAuth && user) {
-    // Redirect authenticated users away from auth pages
-    return <Navigate to="/home" replace />;
+    // Redirect authenticated users away from public pages to the app
+    return <Navigate to="/app/home" replace />;
   }
 
   return <>{children}</>;
