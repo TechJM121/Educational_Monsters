@@ -1,0 +1,335 @@
+/**
+ * High Contrast Mode Styles
+ * CSS utilities and overrides for high contrast accessibility
+ */
+
+/* High contrast mode base styles */
+.high-contrast-mode {
+  /* Ensure all animations remain functional */
+  --animation-duration: 1;
+  --animation-intensity: 1;
+}
+
+/* High contrast mode overrides for common components */
+.high-contrast-mode .glass-card {
+  background: var(--hc-surface) !important;
+  border: 2px solid var(--hc-border) !important;
+  backdrop-filter: none !important;
+  box-shadow: var(--hc-shadow-md) !important;
+}
+
+.high-contrast-mode .glass-button {
+  background: var(--hc-primary) !important;
+  color: var(--hc-background) !important;
+  border: 2px solid var(--hc-border) !important;
+  backdrop-filter: none !important;
+}
+
+.high-contrast-mode .glass-button:hover {
+  background: var(--hc-secondary) !important;
+  transform: scale(1.02) !important; /* Maintain hover animations */
+}
+
+.high-contrast-mode .glass-button:focus {
+  outline: 3px solid var(--hc-focus) !important;
+  outline-offset: 2px !important;
+}
+
+.high-contrast-mode .glass-modal {
+  background: var(--hc-surface) !important;
+  border: 3px solid var(--hc-border) !important;
+  backdrop-filter: none !important;
+  box-shadow: var(--hc-shadow-lg) !important;
+}
+
+.high-contrast-mode .glass-modal-backdrop {
+  background: var(--hc-background) !important;
+  opacity: 0.9 !important;
+}
+
+/* Particle system adjustments */
+.high-contrast-mode .particle-system {
+  /* Reduce particle opacity but keep animations */
+  opacity: 0.3 !important;
+}
+
+.high-contrast-mode .particle {
+  /* Use high contrast colors for particles */
+  background: var(--hc-primary) !important;
+  border: 1px solid var(--hc-border) !important;
+}
+
+/* Typography adjustments */
+.high-contrast-mode .text-gradient {
+  background: var(--hc-primary) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+
+.high-contrast-mode .animated-underline {
+  border-bottom-color: var(--hc-primary) !important;
+}
+
+.high-contrast-mode .typewriter-cursor {
+  background-color: var(--hc-primary) !important;
+}
+
+/* Form elements */
+.high-contrast-mode input,
+.high-contrast-mode textarea,
+.high-contrast-mode select {
+  background: var(--hc-background) !important;
+  color: var(--hc-text) !important;
+  border: 2px solid var(--hc-border) !important;
+}
+
+.high-contrast-mode input:focus,
+.high-contrast-mode textarea:focus,
+.high-contrast-mode select:focus {
+  outline: 3px solid var(--hc-focus) !important;
+  outline-offset: 2px !important;
+  border-color: var(--hc-focus) !important;
+}
+
+.high-contrast-mode .form-error {
+  color: var(--hc-error) !important;
+  border-color: var(--hc-error) !important;
+}
+
+.high-contrast-mode .form-success {
+  color: var(--hc-success) !important;
+  border-color: var(--hc-success) !important;
+}
+
+/* Navigation elements */
+.high-contrast-mode .nav-link {
+  color: var(--hc-text) !important;
+  border-bottom: 2px solid transparent !important;
+}
+
+.high-contrast-mode .nav-link:hover {
+  color: var(--hc-primary) !important;
+  border-bottom-color: var(--hc-primary) !important;
+  /* Maintain hover animations */
+  transform: translateY(-2px) !important;
+}
+
+.high-contrast-mode .nav-link.active {
+  color: var(--hc-primary) !important;
+  border-bottom-color: var(--hc-primary) !important;
+  font-weight: bold !important;
+}
+
+/* Loading states */
+.high-contrast-mode .skeleton {
+  background: var(--hc-surface) !important;
+  border: 1px solid var(--hc-border) !important;
+}
+
+.high-contrast-mode .skeleton::after {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--hc-primary),
+    transparent
+  ) !important;
+}
+
+.high-contrast-mode .loading-spinner {
+  border-color: var(--hc-border) !important;
+  border-top-color: var(--hc-primary) !important;
+}
+
+.high-contrast-mode .progress-bar {
+  background: var(--hc-surface) !important;
+  border: 1px solid var(--hc-border) !important;
+}
+
+.high-contrast-mode .progress-fill {
+  background: var(--hc-primary) !important;
+}
+
+/* Data visualization */
+.high-contrast-mode .chart-bar {
+  fill: var(--hc-primary) !important;
+  stroke: var(--hc-border) !important;
+  stroke-width: 2 !important;
+}
+
+.high-contrast-mode .chart-line {
+  stroke: var(--hc-primary) !important;
+  stroke-width: 3 !important;
+}
+
+.high-contrast-mode .chart-point {
+  fill: var(--hc-primary) !important;
+  stroke: var(--hc-background) !important;
+  stroke-width: 2 !important;
+}
+
+/* Tooltips and popovers */
+.high-contrast-mode .tooltip {
+  background: var(--hc-surface) !important;
+  color: var(--hc-text) !important;
+  border: 2px solid var(--hc-border) !important;
+  box-shadow: var(--hc-shadow-md) !important;
+}
+
+.high-contrast-mode .tooltip-arrow {
+  border-color: var(--hc-border) !important;
+}
+
+/* Alerts and notifications */
+.high-contrast-mode .alert {
+  border: 2px solid var(--hc-border) !important;
+}
+
+.high-contrast-mode .alert-info {
+  background: var(--hc-surface) !important;
+  color: var(--hc-info) !important;
+  border-color: var(--hc-info) !important;
+}
+
+.high-contrast-mode .alert-success {
+  background: var(--hc-surface) !important;
+  color: var(--hc-success) !important;
+  border-color: var(--hc-success) !important;
+}
+
+.high-contrast-mode .alert-warning {
+  background: var(--hc-surface) !important;
+  color: var(--hc-warning) !important;
+  border-color: var(--hc-warning) !important;
+}
+
+.high-contrast-mode .alert-error {
+  background: var(--hc-surface) !important;
+  color: var(--hc-error) !important;
+  border-color: var(--hc-error) !important;
+}
+
+/* 3D elements adjustments */
+.high-contrast-mode .avatar-3d {
+  /* Maintain 3D transforms but adjust colors */
+  filter: contrast(1.5) brightness(1.2) !important;
+}
+
+.high-contrast-mode .card-3d {
+  /* Reduce 3D effects but maintain functionality */
+  transform: perspective(1000px) rotateX(0deg) rotateY(0deg) !important;
+  box-shadow: var(--hc-shadow-lg) !important;
+  border: 2px solid var(--hc-border) !important;
+}
+
+.high-contrast-mode .card-3d:hover {
+  /* Maintain hover effects with high contrast */
+  transform: perspective(1000px) rotateX(2deg) rotateY(2deg) scale(1.02) !important;
+  box-shadow: var(--hc-shadow-lg) !important;
+}
+
+/* Parallax adjustments */
+.high-contrast-mode .parallax-layer {
+  /* Reduce parallax intensity but keep effect */
+  transform: translateZ(0) translateY(calc(var(--scroll-y) * 0.3)) !important;
+}
+
+/* Focus indicators */
+.high-contrast-mode *:focus {
+  outline: 3px solid var(--hc-focus) !important;
+  outline-offset: 2px !important;
+}
+
+.high-contrast-mode .focus-ring {
+  box-shadow: 0 0 0 3px var(--hc-focus) !important;
+}
+
+/* Animation overrides that maintain functionality */
+.high-contrast-mode .animate-pulse {
+  animation: hc-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite !important;
+}
+
+.high-contrast-mode .animate-bounce {
+  animation: hc-bounce 1s infinite !important;
+}
+
+.high-contrast-mode .animate-spin {
+  animation: hc-spin 1s linear infinite !important;
+}
+
+/* High contrast specific animations */
+@keyframes hc-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes hc-bounce {
+  0%, 100% {
+    transform: translateY(-25%);
+    animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+  }
+  50% {
+    transform: none;
+    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+  }
+}
+
+@keyframes hc-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Utility classes for high contrast mode */
+.hc-bg-primary { background-color: var(--hc-primary) !important; }
+.hc-bg-secondary { background-color: var(--hc-secondary) !important; }
+.hc-bg-surface { background-color: var(--hc-surface) !important; }
+.hc-bg-background { background-color: var(--hc-background) !important; }
+
+.hc-text-primary { color: var(--hc-primary) !important; }
+.hc-text-secondary { color: var(--hc-secondary) !important; }
+.hc-text-main { color: var(--hc-text) !important; }
+.hc-text-muted { color: var(--hc-textSecondary) !important; }
+
+.hc-border-primary { border-color: var(--hc-primary) !important; }
+.hc-border-secondary { border-color: var(--hc-secondary) !important; }
+.hc-border-main { border-color: var(--hc-border) !important; }
+
+.hc-shadow-sm { box-shadow: var(--hc-shadow-sm) !important; }
+.hc-shadow-md { box-shadow: var(--hc-shadow-md) !important; }
+.hc-shadow-lg { box-shadow: var(--hc-shadow-lg) !important; }
+
+/* Media query for system high contrast preference */
+@media (prefers-contrast: high) {
+  :root:not(.high-contrast-mode) {
+    /* Apply subtle high contrast improvements even when not in full mode */
+    --tw-ring-color: rgb(59 130 246 / 0.8);
+    --tw-ring-offset-width: 2px;
+  }
+  
+  :root:not(.high-contrast-mode) *:focus {
+    outline-width: 2px !important;
+    outline-offset: 2px !important;
+  }
+}
+
+/* Print styles for high contrast */
+@media print {
+  .high-contrast-mode * {
+    background: white !important;
+    color: black !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+  
+  .high-contrast-mode .glass-card,
+  .high-contrast-mode .glass-button,
+  .high-contrast-mode .glass-modal {
+    border: 2px solid black !important;
+    background: white !important;
+  }
+}

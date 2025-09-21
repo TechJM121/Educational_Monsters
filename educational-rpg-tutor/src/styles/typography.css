@@ -1,0 +1,448 @@
+/* Variable Fonts and Fluid Typography System */
+
+/* Import variable fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
+
+:root {
+  /* Fluid Typography Scale using clamp() */
+  --font-size-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
+  --font-size-sm: clamp(0.875rem, 0.8rem + 0.375vw, 1rem);
+  --font-size-base: clamp(1rem, 0.9rem + 0.5vw, 1.125rem);
+  --font-size-lg: clamp(1.125rem, 1rem + 0.625vw, 1.25rem);
+  --font-size-xl: clamp(1.25rem, 1.1rem + 0.75vw, 1.5rem);
+  --font-size-2xl: clamp(1.5rem, 1.3rem + 1vw, 2rem);
+  --font-size-3xl: clamp(2rem, 1.7rem + 1.5vw, 3rem);
+  --font-size-4xl: clamp(2.5rem, 2rem + 2.5vw, 4rem);
+  --font-size-5xl: clamp(3rem, 2.5rem + 2.5vw, 5rem);
+
+  /* Fluid Line Heights */
+  --line-height-tight: clamp(1.1, 1.05 + 0.25vw, 1.25);
+  --line-height-normal: clamp(1.4, 1.3 + 0.5vw, 1.6);
+  --line-height-relaxed: clamp(1.6, 1.5 + 0.5vw, 1.8);
+
+  /* Fluid Letter Spacing */
+  --letter-spacing-tight: clamp(-0.05em, -0.03em + -0.1vw, -0.025em);
+  --letter-spacing-normal: 0;
+  --letter-spacing-wide: clamp(0.025em, 0.02em + 0.025vw, 0.05em);
+
+  /* Dynamic Font Weights */
+  --font-weight-light: 300;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+
+  /* Font Families */
+  --font-family-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-family-mono: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+/* Base Typography Classes */
+.text-fluid-xs {
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-normal);
+}
+
+.text-fluid-sm {
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-normal);
+}
+
+.text-fluid-base {
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-normal);
+}
+
+.text-fluid-lg {
+  font-size: var(--font-size-lg);
+  line-height: var(--line-height-normal);
+}
+
+.text-fluid-xl {
+  font-size: var(--font-size-xl);
+  line-height: var(--line-height-tight);
+}
+
+.text-fluid-2xl {
+  font-size: var(--font-size-2xl);
+  line-height: var(--line-height-tight);
+}
+
+.text-fluid-3xl {
+  font-size: var(--font-size-3xl);
+  line-height: var(--line-height-tight);
+}
+
+.text-fluid-4xl {
+  font-size: var(--font-size-4xl);
+  line-height: var(--line-height-tight);
+}
+
+.text-fluid-5xl {
+  font-size: var(--font-size-5xl);
+  line-height: var(--line-height-tight);
+}
+
+/* Variable Font Classes with Dynamic Effects */
+.font-variable {
+  font-family: var(--font-family-sans);
+  font-variation-settings: 'wght' var(--font-weight-normal), 'slnt' 0;
+  transition: font-variation-settings 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.font-variable-mono {
+  font-family: var(--font-family-mono);
+  font-variation-settings: 'wght' var(--font-weight-normal);
+  transition: font-variation-settings 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Dynamic Weight Adjustments */
+.font-variable:hover {
+  font-variation-settings: 'wght' var(--font-weight-medium), 'slnt' 0;
+}
+
+.font-variable.font-bold {
+  font-variation-settings: 'wght' var(--font-weight-bold), 'slnt' 0;
+}
+
+.font-variable.font-bold:hover {
+  font-variation-settings: 'wght' var(--font-weight-extrabold), 'slnt' 0;
+}
+
+/* Interactive Typography Effects */
+.text-interactive {
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.text-interactive:hover {
+  letter-spacing: var(--letter-spacing-wide);
+  transform: translateY(-1px);
+}
+
+.text-interactive:active {
+  transform: translateY(0);
+  letter-spacing: var(--letter-spacing-tight);
+}
+
+/* Responsive Typography Adjustments */
+@media (max-width: 640px) {
+  :root {
+    --font-size-base: clamp(0.9rem, 0.85rem + 0.25vw, 1rem);
+    --line-height-normal: 1.5;
+  }
+}
+
+@media (min-width: 1920px) {
+  :root {
+    --font-size-base: clamp(1.125rem, 1rem + 0.25vw, 1.25rem);
+  }
+}
+
+/* High DPI Display Adjustments */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .font-variable {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .font-variable {
+    font-variation-settings: 'wght' var(--font-weight-normal), 'slnt' 0;
+  }
+  
+  .text-fluid-base {
+    font-size: 12pt;
+    line-height: 1.4;
+  }
+}
+/* R
+eading Mode Styles */
+.reading-mode {
+  --reading-bg: #fefefe;
+  --reading-text: #2a2a2a;
+  --reading-accent: #0066cc;
+  --reading-border: #e0e0e0;
+}
+
+.reading-mode.dark {
+  --reading-bg: #1a1a1a;
+  --reading-text: #e0e0e0;
+  --reading-accent: #66b3ff;
+  --reading-border: #404040;
+}
+
+/* Readable Text Component */
+.readable-text {
+  font-family: var(--readable-font-family, var(--font-family-sans));
+  font-size: var(--readable-font-size, var(--font-size-base));
+  line-height: var(--readable-line-height, var(--line-height-normal));
+  letter-spacing: var(--readable-letter-spacing, var(--letter-spacing-normal));
+  word-spacing: var(--readable-word-spacing, normal);
+  max-width: var(--readable-max-line-length, 75ch);
+  color: var(--reading-text, currentColor);
+}
+
+.readable-text--body {
+  margin-bottom: var(--readable-paragraph-spacing, 1em);
+}
+
+.readable-text--heading {
+  font-weight: var(--font-weight-bold);
+  margin-bottom: calc(var(--readable-paragraph-spacing, 1em) * 0.5);
+}
+
+.readable-text--caption {
+  font-size: calc(var(--readable-font-size, 1rem) * 0.875);
+  opacity: 0.8;
+}
+
+.readable-text--code {
+  font-family: var(--font-family-mono);
+  background-color: var(--reading-border, #f5f5f5);
+  padding: 0.125em 0.25em;
+  border-radius: 0.25em;
+}
+
+/* Reading Mode Active Styles */
+.reading-mode-active {
+  background-color: var(--reading-bg);
+  color: var(--reading-text);
+  padding: 1rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Dyslexia-Friendly Styles */
+.dyslexia-friendly {
+  font-family: var(--readable-font-family, 'OpenDyslexic', 'Comic Sans MS', sans-serif);
+  font-weight: 400;
+  text-decoration: none;
+}
+
+.dyslexia-friendly b,
+.dyslexia-friendly strong {
+  font-weight: 600; /* Avoid too bold fonts */
+}
+
+.dyslexia-friendly em,
+.dyslexia-friendly i {
+  font-style: normal;
+  background-color: rgba(255, 255, 0, 0.2);
+  padding: 0 0.125em;
+}
+
+/* Reduced Motion Styles */
+.reduced-motion,
+.reduced-motion * {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* Reading Mode Controls */
+.reading-mode-controls {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 1000;
+  background: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 1rem;
+  max-width: 300px;
+}
+
+.reading-mode-toggle {
+  background: var(--reading-accent, #0066cc);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.reading-mode-toggle:hover {
+  background: color-mix(in srgb, var(--reading-accent, #0066cc) 80%, black);
+}
+
+.reading-mode-toggle.active {
+  background: #28a745;
+}
+
+.reading-mode-settings {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--reading-border, #e0e0e0);
+}
+
+.setting-group {
+  margin-bottom: 1rem;
+}
+
+.setting-group:last-child {
+  margin-bottom: 0;
+}
+
+.setting-group label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #666;
+  margin-bottom: 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.setting-group input[type="range"] {
+  width: 100%;
+  margin: 0.25rem 0;
+}
+
+.setting-group input[type="checkbox"] {
+  margin-right: 0.5rem;
+}
+
+.setting-group select {
+  width: 100%;
+  padding: 0.25rem;
+  border: 1px solid var(--reading-border, #e0e0e0);
+  border-radius: 0.25rem;
+  background: white;
+}
+
+.setting-group span {
+  font-size: 0.75rem;
+  color: #888;
+  float: right;
+}
+
+/* High Contrast Mode */
+.reading-mode[data-contrast="high"] {
+  --reading-bg: #ffffff;
+  --reading-text: #000000;
+  --reading-accent: #0000ff;
+  --reading-border: #000000;
+}
+
+.reading-mode[data-contrast="maximum"] {
+  --reading-bg: #000000;
+  --reading-text: #ffffff;
+  --reading-accent: #ffff00;
+  --reading-border: #ffffff;
+}
+
+/* Responsive Reading Mode */
+@media (max-width: 768px) {
+  .reading-mode-controls {
+    position: relative;
+    top: auto;
+    right: auto;
+    margin: 1rem 0;
+    max-width: none;
+  }
+  
+  .readable-text {
+    max-width: none;
+    padding: 0 1rem;
+  }
+}
+
+/* Focus Styles for Reading Mode */
+.reading-mode-active *:focus {
+  outline: 2px solid var(--reading-accent, #0066cc);
+  outline-offset: 2px;
+}
+
+/* Print Styles for Reading Mode */
+@media print {
+  .reading-mode-controls {
+    display: none;
+  }
+  
+  .readable-text {
+    font-size: 12pt;
+    line-height: 1.4;
+    color: black;
+    background: white;
+    box-shadow: none;
+  }
+}
+
+/* Animation for Reading Mode Transition */
+@media (prefers-reduced-motion: no-preference) {
+  .readable-text {
+    transition: all 0.3s ease;
+  }
+  
+  .reading-mode-active {
+    animation: fadeInReading 0.3s ease;
+  }
+  
+  @keyframes fadeInReading {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+/* Text Selection in Reading Mode */
+.reading-mode-active ::selection {
+  background: rgba(var(--reading-accent-rgb, 0, 102, 204), 0.2);
+  color: var(--reading-text);
+}
+
+/* Link Styles in Reading Mode */
+.reading-mode-active a {
+  color: var(--reading-accent, #0066cc);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 2px;
+}
+
+.reading-mode-active a:hover {
+  background-color: rgba(var(--reading-accent-rgb, 0, 102, 204), 0.1);
+}
+
+/* List Styles in Reading Mode */
+.reading-mode-active ul,
+.reading-mode-active ol {
+  padding-left: 2em;
+  margin-bottom: var(--readable-paragraph-spacing, 1em);
+}
+
+.reading-mode-active li {
+  margin-bottom: 0.5em;
+}
+
+/* Table Styles in Reading Mode */
+.reading-mode-active table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-bottom: var(--readable-paragraph-spacing, 1em);
+}
+
+.reading-mode-active th,
+.reading-mode-active td {
+  border: 1px solid var(--reading-border, #e0e0e0);
+  padding: 0.75em;
+  text-align: left;
+}
+
+.reading-mode-active th {
+  background-color: var(--reading-border, #f5f5f5);
+  font-weight: 600;
+}

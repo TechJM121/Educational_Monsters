@@ -1,5 +1,4 @@
-import { ParticleConfig } from '../../types/animation';
-import { DeviceCapability } from '../../types/animation';
+import type { ParticleConfig, DeviceCapability } from '../../types/animation';
 
 export const createParticleConfig = (
   theme: 'magical' | 'tech' | 'nature' | 'cosmic' = 'magical',
@@ -9,7 +8,7 @@ export const createParticleConfig = (
     magical: {
       size: { min: 2, max: 8 },
       speed: { min: 0.2, max: 1.5 },
-      color: ['#8B5CF6', '#A855F7', '#C084FC', '#DDD6FE', '#F3E8FF'],
+      color: ['#8B5CF6', '#A855F7', '#C084FC', '#DDD6FE', '#F3E8FF', '#E879F9'],
       opacity: { min: 0.3, max: 0.8 },
       interactionRadius: 80,
       magneticForce: 0.02,
@@ -18,7 +17,7 @@ export const createParticleConfig = (
     tech: {
       size: { min: 1, max: 6 },
       speed: { min: 0.5, max: 2.0 },
-      color: ['#06B6D4', '#0891B2', '#0E7490', '#155E75', '#164E63'],
+      color: ['#06B6D4', '#0891B2', '#0E7490', '#155E75', '#164E63', '#22D3EE'],
       opacity: { min: 0.4, max: 0.9 },
       interactionRadius: 100,
       magneticForce: 0.03,
@@ -27,7 +26,7 @@ export const createParticleConfig = (
     nature: {
       size: { min: 3, max: 10 },
       speed: { min: 0.1, max: 1.0 },
-      color: ['#10B981', '#059669', '#047857', '#065F46', '#064E3B'],
+      color: ['#10B981', '#059669', '#047857', '#065F46', '#064E3B', '#34D399'],
       opacity: { min: 0.2, max: 0.7 },
       interactionRadius: 60,
       magneticForce: 0.015,
@@ -36,7 +35,7 @@ export const createParticleConfig = (
     cosmic: {
       size: { min: 1, max: 12 },
       speed: { min: 0.3, max: 1.8 },
-      color: ['#7C3AED', '#6D28D9', '#5B21B6', '#4C1D95', '#3730A3'],
+      color: ['#7C3AED', '#6D28D9', '#5B21B6', '#4C1D95', '#3730A3', '#A78BFA'],
       opacity: { min: 0.3, max: 0.9 },
       interactionRadius: 120,
       magneticForce: 0.025,
@@ -90,4 +89,39 @@ export const getThemeColors = (theme: 'magical' | 'tech' | 'nature' | 'cosmic') 
   };
 
   return themeColors[theme];
+};
+
+export const getThemeBehaviors = (theme: 'magical' | 'tech' | 'nature' | 'cosmic') => {
+  const behaviors = {
+    magical: {
+      spawnAnimation: 'spiral' as const,
+      despawnAnimation: 'fade' as const,
+      movementPattern: 'floating',
+      interactionType: 'gentle',
+      transitionDuration: 800
+    },
+    tech: {
+      spawnAnimation: 'burst' as const,
+      despawnAnimation: 'implode' as const,
+      movementPattern: 'linear',
+      interactionType: 'magnetic',
+      transitionDuration: 400
+    },
+    nature: {
+      spawnAnimation: 'scale' as const,
+      despawnAnimation: 'scatter' as const,
+      movementPattern: 'organic',
+      interactionType: 'soft',
+      transitionDuration: 1000
+    },
+    cosmic: {
+      spawnAnimation: 'burst' as const,
+      despawnAnimation: 'implode' as const,
+      movementPattern: 'orbital',
+      interactionType: 'strong',
+      transitionDuration: 600
+    }
+  };
+
+  return behaviors[theme];
 };

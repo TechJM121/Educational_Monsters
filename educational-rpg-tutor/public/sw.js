@@ -1,66 +1,85 @@
-// Service Worker for Educational RPG Tutor
-// Provides offline functionality and caching strategies
+/**
+ * Service Worker for Asset Caching and Performance Optimization
+ * Implements advanced caching strategies for optimal loading performance
+ */
 
 const CACHE_NAME = 'educational-rpg-tutor-v1';
 const STATIC_CACHE = 'static-v1';
 const DYNAMIC_CACHE = 'dynamic-v1';
+const IMAGE_CACHE = 'images-v1';
+const FONT_CACHE = 'fonts-v1';
 
-// Assets to cache immediately
-const STATIC_ASSETS = [
+// Cache duration in milliseconds
+const CACHE_DURATION = {
+  STATIC: 7 * 24 * 60 * 60 * 1000, // 7 days
+  DYNAMIC: 24 * 60 * 60 * 1000,    // 1 day
+  IMAGES: 30 * 24 * 60 * 60 * 1000, // 30 days
+  FONTS: 365 * 24 * 60 * 60 * 1000  // 1 year
+};
+
+// Critical resources to cache immediately
+const CRITICAL_RESOURCES = [
   '/',
   '/index.html',
   '/manifest.json',
-  '/offline.html',
-  // Core CSS and JS will be added dynamically
+  '/js/critical.js',
+  '/css/critical.css',
+  '/fonts/inter-400.woff2',
+  '/fonts/inter-500.woff2',
+  '/fonts/inter-600.woff2',
+  '/fonts/poppins-600.woff2'
 ];
 
-// API endpoints that should be cached
-const CACHEABLE_APIS = [
-  '/api/questions',
-  '/api/achievements',
-  '/api/subjects',
+// Resources to cache on first request
+const CACHE_ON_REQUEST = [
+  '/js/',
+  '/css/',
+  '/fonts/',
+  '/images/',
+  '/api/'
 ];
 
-// Install event - cache static assets
+// Install event - cache critical resources
 self.addEventListener('install', (event) => {
-  console.log('Service Worker: Installing...');
+  console.log('Service Worker installing...');
   
   event.waitUntil(
-    caches.open(STATIC_CACHE)
-      .then((cache) => {
-        console.log('Service Worker: Caching static assets');
-        return cache.addAll(STATIC_ASSETS);
-      })
-      .then(() => {
-        console.log('Service Worker: Static assets cached');
-        return self.skipWaiting();
-      })
-      .catch((error) => {
-        console.error('Service Worker: Failed to cache static assets', error);
-      })
+    Promise.all([
+      // Cache critical resources
+      caches.open(STATIC_CACHE).then((cache) => {
+        return cache.addAll(CRITICAL_RESOURCES);
+      }),
+      
+      // Skip waiting to activate immediately
+      self.skipWaiting()
+    ])
   );
 });
 
 // Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
-  console.log('Service Worker: Activating...');
+  console.log('Service Worker activating...');
   
   event.waitUntil(
-    caches.keys()
-      .then((cacheNames) => {
+    Promise.all([
+      // Clean up old caches
+      caches.keys().then((cacheNames) => {
         return Promise.all(
           cacheNames.map((cacheName) => {
-            if (cacheName !== STATIC_CACHE && cacheName !== DYNAMIC_CACHE) {
-              console.log('Service Worker: Deleting old cache', cacheName);
+            if (cacheName !== STATIC_CACHE && 
+                cacheName !== DYNAMIC_CACHE && 
+                cacheName !== IMAGE_CACHE && 
+                cacheName !== FONT_CACHE) {
+              console.log('Deleting old cache:', cacheName);
               return caches.delete(cacheName);
             }
           })
         );
-      })
-      .then(() => {
-        console.log('Service Worker: Activated');
-        return self.clients.claim();
-      })
+      }),
+      
+      // Take control of all clients
+      self.clients.claim()
+    ])
   );
 });
 
@@ -68,227 +87,325 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
-
+  
   // Skip non-GET requests
   if (request.method !== 'GET') {
     return;
   }
-
-  // Handle different types of requests with appropriate strategies
-  if (isStaticAsset(request)) {
-    event.respondWith(cacheFirst(request));
-  } else if (isAPIRequest(request)) {
-    event.respondWith(networkFirst(request));
-  } else if (isNavigationRequest(request)) {
-    event.respondWith(navigationHandler(request));
-  } else {
-    event.respondWith(staleWhileRevalidate(request));
+  
+  // Skip chrome-extension and other non-http requests
+  if (!url.protocol.startsWith('http')) {
+    return;
   }
+  
+  event.respondWith(handleRequest(request));
 });
 
-// Cache strategies
-async function cacheFirst(request) {
+// Handle different types of requests with appropriate caching strategies
+async function handleRequest(request) {
+  const url = new URL(request.url);
+  const pathname = url.pathname;
+  
   try {
-    const cachedResponse = await caches.match(request);
-    if (cachedResponse) {
-      return cachedResponse;
+    // Static assets (JS, CSS) - Cache First
+    if (pathname.startsWith('/js/') || pathname.startsWith('/css/')) {
+      return await cacheFirst(request, STATIC_CACHE);
     }
     
-    const networkResponse = await fetch(request);
-    if (networkResponse.ok) {
-      const cache = await caches.open(STATIC_CACHE);
-      cache.put(request, networkResponse.clone());
+    // Fonts - Cache First with long expiration
+    if (pathname.startsWith('/fonts/') || pathname.includes('.woff')) {
+      return await cacheFirst(request, FONT_CACHE);
     }
-    return networkResponse;
+    
+    // Images - Cache First with fallback
+    if (pathname.startsWith('/images/') || isImageRequest(request)) {
+      return await cacheFirstWithFallback(request, IMAGE_CACHE);
+    }
+    
+    // API requests - Network First with cache fallback
+    if (pathname.startsWith('/api/')) {
+      return await networkFirst(request, DYNAMIC_CACHE);
+    }
+    
+    // HTML pages - Stale While Revalidate
+    if (pathname === '/' || pathname.endsWith('.html') || !pathname.includes('.')) {
+      return await staleWhileRevalidate(request, DYNAMIC_CACHE);
+    }
+    
+    // Default - Network First
+    return await networkFirst(request, DYNAMIC_CACHE);
+    
   } catch (error) {
-    console.error('Cache first strategy failed:', error);
-    return new Response('Offline content not available', { status: 503 });
+    console.error('Request handling error:', error);
+    return await handleOfflineFallback(request);
   }
 }
 
-async function networkFirst(request) {
-  try {
-    const networkResponse = await fetch(request);
-    if (networkResponse.ok) {
-      const cache = await caches.open(DYNAMIC_CACHE);
-      cache.put(request, networkResponse.clone());
-    }
-    return networkResponse;
-  } catch (error) {
-    console.log('Network failed, trying cache:', error);
-    const cachedResponse = await caches.match(request);
-    if (cachedResponse) {
-      return cachedResponse;
-    }
-    
-    // Return offline fallback for API requests
-    return new Response(JSON.stringify({
-      error: 'Offline',
-      message: 'This content is not available offline'
-    }), {
-      status: 503,
-      headers: { 'Content-Type': 'application/json' }
-    });
-  }
-}
-
-async function staleWhileRevalidate(request) {
-  const cache = await caches.open(DYNAMIC_CACHE);
+// Cache First strategy - for static assets
+async function cacheFirst(request, cacheName) {
+  const cache = await caches.open(cacheName);
   const cachedResponse = await cache.match(request);
   
-  const fetchPromise = fetch(request).then((networkResponse) => {
+  if (cachedResponse && !isExpired(cachedResponse, CACHE_DURATION.STATIC)) {
+    return cachedResponse;
+  }
+  
+  try {
+    const networkResponse = await fetch(request);
+    
+    if (networkResponse.ok) {
+      // Clone response before caching
+      const responseClone = networkResponse.clone();
+      await cache.put(request, responseClone);
+    }
+    
+    return networkResponse;
+  } catch (error) {
+    // Return cached version even if expired
+    if (cachedResponse) {
+      return cachedResponse;
+    }
+    throw error;
+  }
+}
+
+// Cache First with fallback for images
+async function cacheFirstWithFallback(request, cacheName) {
+  try {
+    return await cacheFirst(request, cacheName);
+  } catch (error) {
+    // Return offline fallback image
+    const cache = await caches.open(cacheName);
+    const fallback = await cache.match('/images/offline-fallback.svg');
+    return fallback || new Response('Image not available', { status: 404 });
+  }
+}
+
+// Network First strategy - for dynamic content
+async function networkFirst(request, cacheName) {
+  const cache = await caches.open(cacheName);
+  
+  try {
+    const networkResponse = await fetch(request);
+    
+    if (networkResponse.ok) {
+      // Cache successful responses
+      const responseClone = networkResponse.clone();
+      await cache.put(request, responseClone);
+    }
+    
+    return networkResponse;
+  } catch (error) {
+    // Fallback to cache
+    const cachedResponse = await cache.match(request);
+    
+    if (cachedResponse) {
+      return cachedResponse;
+    }
+    
+    throw error;
+  }
+}
+
+// Stale While Revalidate strategy - for HTML pages
+async function staleWhileRevalidate(request, cacheName) {
+  const cache = await caches.open(cacheName);
+  const cachedResponse = await cache.match(request);
+  
+  // Always try to fetch from network in background
+  const networkPromise = fetch(request).then((networkResponse) => {
     if (networkResponse.ok) {
       cache.put(request, networkResponse.clone());
     }
     return networkResponse;
-  }).catch(() => cachedResponse);
+  }).catch(() => {
+    // Network failed, but we might have cache
+  });
   
-  return cachedResponse || fetchPromise;
-}
-
-async function navigationHandler(request) {
+  // Return cached version immediately if available
+  if (cachedResponse && !isExpired(cachedResponse, CACHE_DURATION.DYNAMIC)) {
+    // Update cache in background
+    networkPromise;
+    return cachedResponse;
+  }
+  
+  // Wait for network if no cache or cache is expired
   try {
-    const networkResponse = await fetch(request);
-    return networkResponse;
+    return await networkPromise;
   } catch (error) {
-    console.log('Navigation request failed, serving offline page');
-    const cache = await caches.open(STATIC_CACHE);
-    return cache.match('/offline.html');
+    // Return expired cache as last resort
+    if (cachedResponse) {
+      return cachedResponse;
+    }
+    throw error;
   }
 }
 
-// Helper functions
-function isStaticAsset(request) {
-  const url = new URL(request.url);
-  return url.pathname.match(/\.(js|css|png|jpg|jpeg|gif|svg|woff|woff2|ttf|ico)$/);
-}
-
-function isAPIRequest(request) {
-  const url = new URL(request.url);
-  return url.pathname.startsWith('/api/') || 
-         url.hostname.includes('supabase') ||
-         CACHEABLE_APIS.some(api => url.pathname.startsWith(api));
-}
-
-function isNavigationRequest(request) {
-  return request.mode === 'navigate';
-}
-
-// Background sync for offline actions
-self.addEventListener('sync', (event) => {
-  console.log('Service Worker: Background sync triggered', event.tag);
+// Check if cached response is expired
+function isExpired(response, maxAge) {
+  const dateHeader = response.headers.get('date');
+  if (!dateHeader) return false;
   
-  if (event.tag === 'character-progress-sync') {
-    event.waitUntil(syncCharacterProgress());
-  } else if (event.tag === 'question-responses-sync') {
-    event.waitUntil(syncQuestionResponses());
+  const responseDate = new Date(dateHeader);
+  const now = new Date();
+  
+  return (now.getTime() - responseDate.getTime()) > maxAge;
+}
+
+// Check if request is for an image
+function isImageRequest(request) {
+  const url = new URL(request.url);
+  const pathname = url.pathname.toLowerCase();
+  
+  return pathname.match(/\.(jpg|jpeg|png|gif|webp|avif|svg)$/);
+}
+
+// Handle offline fallbacks
+async function handleOfflineFallback(request) {
+  const url = new URL(request.url);
+  const pathname = url.pathname;
+  
+  // HTML fallback
+  if (pathname === '/' || pathname.endsWith('.html') || !pathname.includes('.')) {
+    const cache = await caches.open(STATIC_CACHE);
+    const fallback = await cache.match('/offline.html');
+    return fallback || new Response('Offline', { status: 503 });
+  }
+  
+  // Image fallback
+  if (isImageRequest(request)) {
+    const cache = await caches.open(IMAGE_CACHE);
+    const fallback = await cache.match('/images/offline-fallback.svg');
+    return fallback || new Response('Image not available', { status: 404 });
+  }
+  
+  // Generic fallback
+  return new Response('Resource not available offline', { status: 503 });
+}
+
+// Background sync for failed requests
+self.addEventListener('sync', (event) => {
+  if (event.tag === 'background-sync') {
+    event.waitUntil(handleBackgroundSync());
   }
 });
 
-async function syncCharacterProgress() {
-  try {
-    // Get offline character progress from IndexedDB
-    const offlineProgress = await getOfflineProgress();
-    
-    if (offlineProgress.length > 0) {
-      // Sync with Supabase
-      const response = await fetch('/api/sync/character-progress', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(offlineProgress)
-      });
-      
-      if (response.ok) {
-        await clearOfflineProgress();
-        console.log('Character progress synced successfully');
-      }
-    }
-  } catch (error) {
-    console.error('Failed to sync character progress:', error);
-  }
-}
-
-async function syncQuestionResponses() {
-  try {
-    const offlineResponses = await getOfflineResponses();
-    
-    if (offlineResponses.length > 0) {
-      const response = await fetch('/api/sync/question-responses', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(offlineResponses)
-      });
-      
-      if (response.ok) {
-        await clearOfflineResponses();
-        console.log('Question responses synced successfully');
-      }
-    }
-  } catch (error) {
-    console.error('Failed to sync question responses:', error);
-  }
-}
-
-// IndexedDB helpers (simplified - would use a proper library in production)
-async function getOfflineProgress() {
-  // Implementation would use IndexedDB to retrieve offline progress
-  return [];
-}
-
-async function clearOfflineProgress() {
-  // Implementation would clear synced progress from IndexedDB
-}
-
-async function getOfflineResponses() {
-  // Implementation would use IndexedDB to retrieve offline responses
-  return [];
-}
-
-async function clearOfflineResponses() {
-  // Implementation would clear synced responses from IndexedDB
-}
-
-// Push notifications for engagement
-self.addEventListener('push', (event) => {
-  console.log('Service Worker: Push notification received');
+async function handleBackgroundSync() {
+  // Handle any queued requests when back online
+  console.log('Background sync triggered');
   
+  // This would typically replay failed API requests
+  // Implementation depends on your specific needs
+}
+
+// Push notifications (if needed)
+self.addEventListener('push', (event) => {
+  if (!event.data) return;
+  
+  const data = event.data.json();
   const options = {
-    body: event.data ? event.data.text() : 'Time to continue your learning adventure!',
+    body: data.body,
     icon: '/icons/icon-192x192.png',
     badge: '/icons/badge-72x72.png',
     vibrate: [100, 50, 100],
-    data: {
-      dateOfArrival: Date.now(),
-      primaryKey: 1
-    },
-    actions: [
-      {
-        action: 'explore',
-        title: 'Start Learning',
-        icon: '/icons/action-explore.png'
-      },
-      {
-        action: 'close',
-        title: 'Later',
-        icon: '/icons/action-close.png'
-      }
-    ]
+    data: data.data,
+    actions: data.actions
   };
   
   event.waitUntil(
-    self.registration.showNotification('Educational RPG Tutor', options)
+    self.registration.showNotification(data.title, options)
   );
 });
 
 // Handle notification clicks
 self.addEventListener('notificationclick', (event) => {
-  console.log('Service Worker: Notification clicked', event.action);
-  
   event.notification.close();
   
-  if (event.action === 'explore') {
+  if (event.action === 'open') {
     event.waitUntil(
-      clients.openWindow('/')
+      clients.openWindow(event.notification.data.url)
     );
   }
 });
+
+// Message handling for communication with main thread
+self.addEventListener('message', (event) => {
+  const { type, payload } = event.data;
+  
+  switch (type) {
+    case 'SKIP_WAITING':
+      self.skipWaiting();
+      break;
+      
+    case 'GET_CACHE_SIZE':
+      getCacheSize().then(size => {
+        event.ports[0].postMessage({ type: 'CACHE_SIZE', payload: size });
+      });
+      break;
+      
+    case 'CLEAR_CACHE':
+      clearAllCaches().then(() => {
+        event.ports[0].postMessage({ type: 'CACHE_CLEARED' });
+      });
+      break;
+      
+    default:
+      console.log('Unknown message type:', type);
+  }
+});
+
+// Utility functions
+async function getCacheSize() {
+  const cacheNames = await caches.keys();
+  let totalSize = 0;
+  
+  for (const cacheName of cacheNames) {
+    const cache = await caches.open(cacheName);
+    const requests = await cache.keys();
+    
+    for (const request of requests) {
+      const response = await cache.match(request);
+      if (response) {
+        const blob = await response.blob();
+        totalSize += blob.size;
+      }
+    }
+  }
+  
+  return totalSize;
+}
+
+async function clearAllCaches() {
+  const cacheNames = await caches.keys();
+  await Promise.all(
+    cacheNames.map(cacheName => caches.delete(cacheName))
+  );
+}
+
+// Periodic cache cleanup
+setInterval(async () => {
+  try {
+    await cleanupExpiredCache();
+  } catch (error) {
+    console.error('Cache cleanup error:', error);
+  }
+}, 60 * 60 * 1000); // Run every hour
+
+async function cleanupExpiredCache() {
+  const cacheNames = await caches.keys();
+  
+  for (const cacheName of cacheNames) {
+    const cache = await caches.open(cacheName);
+    const requests = await cache.keys();
+    
+    for (const request of requests) {
+      const response = await cache.match(request);
+      
+      if (response && isExpired(response, CACHE_DURATION.DYNAMIC)) {
+        await cache.delete(request);
+      }
+    }
+  }
+}
+
+console.log('Service Worker loaded and ready');

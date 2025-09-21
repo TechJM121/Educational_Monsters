@@ -24,8 +24,22 @@ const mockRAF = vi.fn((callback) => {
   return frameTime;
 });
 
+const mockCAF = vi.fn();
+
 Object.defineProperty(window, 'requestAnimationFrame', {
   value: mockRAF
+});
+
+Object.defineProperty(window, 'cancelAnimationFrame', {
+  value: mockCAF
+});
+
+Object.defineProperty(global, 'requestAnimationFrame', {
+  value: mockRAF
+});
+
+Object.defineProperty(global, 'cancelAnimationFrame', {
+  value: mockCAF
 });
 
 describe('Particle System Performance', () => {
@@ -74,7 +88,7 @@ describe('Particle System Performance', () => {
         mockPerformance.now.mockReturnValue(frames * frameTime);
         
         if (frames < maxFrames) {
-          requestAnimationFrame(simulateFrame);
+          mockRAF(simulateFrame);
         }
       };
 
