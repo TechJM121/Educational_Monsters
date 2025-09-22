@@ -91,6 +91,132 @@ export class AuthService {
       throw error;
     }
   }
+
+  /**
+   * Sign in with Google OAuth
+   */
+  static async signInWithGoogle(options?: { redirectTo?: string }) {
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: options?.redirectTo || `${window.location.origin}/auth/callback`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
+        }
+      });
+      
+      if (error) throw error;
+      
+      return data;
+      
+    } catch (error) {
+      console.error('Google sign in error:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Handle OAuth callback and create user profile if needed
+   */
+  static async handleOAuthCallback() {
+    try {
+      const { data: { user }, error } = await supabase.auth.getUser();
+      
+      if (error) throw error;
+      if (!user) throw new Error('No user found after OAuth callback');
+      
+      // Check if user profile exists
+      const { data: existingProfile } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+      
+      if (!existingProfile) {
+        // Create user profile from OAuth data
+        const name = user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || 'User';
+        
+        // For OAuth users, we need to collect age information
+        // This will be handled by redirecting to an age collection form
+        const { error: profileError } = await supabase
+          .from('users')
+          .insert({
+            id: user.id,
+            email: user.email!,
+            name,
+            age: 0, // Will be updated after age collection
+            parental_consent_given: false // Will be determined after age collection
+          });
+        
+        if (profileError) throw profileError;
+        
+        return { user, needsAgeCollection: true };
+      }
+      
+      return { user, needsAgeCollection: false };
+      
+    } catch (error) {
+      console.error('OAuth callback error:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Complete OAuth user setup with age information
+   */
+  static async completeOAuthSetup(age: number, parentEmail?: string) {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('No authenticated user found');
+      
+      // Validate age requirements
+      if (age < 3 || age > 18) {
+        throw new Error('Age must be between 3 and 18 years old');
+      }
+      
+      const needsParentalConsent = age < 13;
+      
+      // If under 13, parent email is required
+      if (needsParentalConsent && !parentEmail) {
+        throw new Error('Parent email is required for users under 13');
+      }
+      
+      // Update user profile with age information
+      const { error: updateError } = await supabase
+        .from('users')
+        .update({
+          age,
+          parental_consent_given: !needsParentalConsent,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', user.id);
+      
+      if (updateError) throw updateError;
+      
+      // If parental consent is needed, send consent request
+      if (needsParentalConsent && parentEmail) {
+        const { data: profile } = await supabase
+          .from('users')
+          .select('name')
+          .eq('id', user.id)
+          .single();
+        
+        await this.sendParentalConsentRequest(user.id, parentEmail, profile?.name || 'User');
+      }
+      
+      return {
+        user,
+        needsParentalConsent
+      };
+      
+    } catch (error) {
+      console.error('Complete OAuth setup error:', error);
+      throw error;
+    }
+  }
   
   /**
    * Sign out the current user
@@ -310,6 +436,229 @@ export class AuthService {
     return password;
   }
   
+  /**
+   * Reset password for a user
+   */
+  static async resetPassword(email: string) {
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth/reset-password`
+      });
+      
+      if (error) throw error;
+      
+    } catch (error) {
+      console.error('Password reset error:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Update password for authenticated user
+   */
+  static async updatePassword(newPassword: string) {
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword
+      });
+      
+      if (error) throw error;
+      
+    } catch (error) {
+      console.error('Update password error:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Resend email confirmation
+   */
+  static async resendEmailConfirmation(email: string) {
+    try {
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/verify-email`
+        }
+      });
+      
+      if (error) throw error;
+      
+    } catch (error) {
+      console.error('Resend confirmation error:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Update user profile information
+   */
+  static async updateProfile(updates: Partial<User>) {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('No authenticated user found');
+      
+      // Update auth metadata if name is being changed
+      if (updates.name) {
+        const { error: authError } = await supabase.auth.updateUser({
+          data: { name: updates.name }
+        });
+        if (authError) throw authError;
+      }
+      
+      // Update profile in database
+      const { error: profileError } = await supabase
+        .from('users')
+        .update({
+          ...updates,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', user.id);
+      
+      if (profileError) throw profileError;
+      
+      return await this.getCurrentUserProfile();
+      
+    } catch (error) {
+      console.error('Update profile error:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Check if email is already registered
+   */
+  static async checkEmailExists(email: string): Promise<boolean> {
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('id')
+        .eq('email', email.toLowerCase())
+        .single();
+      
+      if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
+        throw error;
+      }
+      
+      return !!data;
+      
+    } catch (error) {
+      console.error('Check email error:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Validate password strength
+   */
+  static validatePassword(password: string): { isValid: boolean; errors: string[] } {
+    const errors: string[] = [];
+    
+    if (password.length < 8) {
+      errors.push('Password must be at least 8 characters long');
+    }
+    
+    if (!/[A-Z]/.test(password)) {
+      errors.push('Password must contain at least one uppercase letter');
+    }
+    
+    if (!/[a-z]/.test(password)) {
+      errors.push('Password must contain at least one lowercase letter');
+    }
+    
+    if (!/\d/.test(password)) {
+      errors.push('Password must contain at least one number');
+    }
+    
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+      errors.push('Password must contain at least one special character');
+    }
+    
+    return {
+      isValid: errors.length === 0,
+      errors
+    };
+  }
+
+  /**
+   * Validate email format
+   */
+  static validateEmail(email: string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  }
+
+  /**
+   * Get current session
+   */
+  static async getCurrentSession() {
+    try {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error) throw error;
+      return session;
+    } catch (error) {
+      console.error('Get session error:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Refresh current session
+   */
+  static async refreshSession() {
+    try {
+      const { data: { session }, error } = await supabase.auth.refreshSession();
+      if (error) throw error;
+      return session;
+    } catch (error) {
+      console.error('Refresh session error:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Check if user is authenticated
+   */
+  static async isAuthenticated(): Promise<boolean> {
+    try {
+      const session = await this.getCurrentSession();
+      return !!session?.user;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  /**
+   * Get user by ID (admin function)
+   */
+  static async getUserById(userId: string): Promise<User | null> {
+    try {
+      const { data: profile, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', userId)
+        .single();
+      
+      if (error) throw error;
+      
+      return profile ? {
+        id: profile.id,
+        email: profile.email,
+        name: profile.name,
+        age: profile.age,
+        parentId: profile.parent_id,
+        parentalConsentGiven: profile.parental_consent_given,
+        createdAt: profile.created_at,
+        updatedAt: profile.updated_at
+      } : null;
+      
+    } catch (error) {
+      console.error('Get user by ID error:', error);
+      return null;
+    }
+  }
+
   /**
    * Listen to auth state changes
    */

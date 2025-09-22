@@ -1,5 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { ResponsiveContainer, ResponsiveText, ResponsiveCard } from '../components/shared/ResponsiveContainer';
+import { ResponsiveButton } from '../components/shared/ResponsiveButton';
+import { useResponsive } from '../hooks/useResponsive';
 
 export const QuestsPage: React.FC = () => {
   const quests = [
@@ -32,78 +35,99 @@ export const QuestsPage: React.FC = () => {
     }
   ];
 
+  const { isMobile } = useResponsive();
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-orange-950 to-slate-950 p-4 sm:p-6">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
-        className="max-w-4xl mx-auto"
-      >
-        <div className="text-center mb-6 sm:mb-8">
-          <h1 className="text-3xl sm:text-5xl font-bold bg-gradient-to-r from-orange-400 to-red-300 bg-clip-text text-transparent mb-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-orange-950 to-slate-950">
+      <ResponsiveContainer maxWidth="lg" padding="md" animate>
+        <div className="text-center mb-6 lg:mb-8">
+          <ResponsiveText 
+            as="h1" 
+            size="3xl" 
+            weight="bold" 
+            className="bg-gradient-to-r from-orange-400 to-red-300 bg-clip-text text-transparent mb-4"
+          >
             ⚔️ Quest Journal
-          </h1>
-          <p className="text-slate-300 text-lg sm:text-xl">
+          </ResponsiveText>
+          <ResponsiveText size="lg" className="text-slate-300">
             Track your learning adventures and earn rewards
-          </p>
+          </ResponsiveText>
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-4 lg:space-y-6">
           {quests.map((quest, index) => (
             <motion.div
               key={quest.title}
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: index * 0.1 }}
-              className="backdrop-blur-xl bg-white/10 rounded-2xl p-4 sm:p-6 border border-white/20"
             >
-              <div className="flex items-start gap-3 sm:gap-4">
-                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r from-orange-500 to-red-400 rounded-xl flex items-center justify-center text-2xl sm:text-3xl flex-shrink-0">
-                  {quest.icon}
+              <ResponsiveCard padding="md">
+                <div className="flex items-start gap-3 lg:gap-4">
+                  <div className="w-12 h-12 lg:w-16 lg:h-16 bg-gradient-to-r from-orange-500 to-red-400 rounded-xl flex items-center justify-center text-2xl lg:text-3xl flex-shrink-0">
+                    {quest.icon}
+                  </div>
+                  
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-2 gap-2">
+                      <ResponsiveText 
+                        as="h3" 
+                        size="lg" 
+                        weight="bold" 
+                        className="text-white truncate"
+                      >
+                        {quest.title}
+                      </ResponsiveText>
+                      <span className={`px-3 py-1 rounded-full text-sm font-medium flex-shrink-0 ${
+                        quest.difficulty === 'Easy' ? 'bg-green-600 text-green-100' :
+                        quest.difficulty === 'Medium' ? 'bg-yellow-600 text-yellow-100' :
+                        'bg-red-600 text-red-100'
+                      }`}>
+                        {quest.difficulty}
+                      </span>
+                    </div>
+                    
+                    <ResponsiveText size="sm" className="text-slate-300 mb-4">
+                      {quest.description}
+                    </ResponsiveText>
+                    
+                    <div className="mb-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <ResponsiveText size="sm" className="text-slate-400">
+                          Progress
+                        </ResponsiveText>
+                        <ResponsiveText size="sm" weight="bold" className="text-white">
+                          {quest.progress}/{quest.total}
+                        </ResponsiveText>
+                      </div>
+                      <div className="w-full bg-slate-700 rounded-full h-3">
+                        <div 
+                          className="bg-gradient-to-r from-orange-500 to-red-400 h-3 rounded-full transition-all duration-300"
+                          style={{ width: `${(quest.progress / quest.total) * 100}%` }}
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3">
+                      <ResponsiveText size="sm" weight="medium" className="text-yellow-400">
+                        🏆 {quest.reward}
+                      </ResponsiveText>
+                      <ResponsiveButton 
+                        variant="primary" 
+                        size="md" 
+                        fullWidth={isMobile}
+                        className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 border-orange-400"
+                      >
+                        Continue Quest
+                      </ResponsiveButton>
+                    </div>
+                  </div>
                 </div>
-                
-                <div className="flex-1 min-w-0">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-2 gap-2">
-                    <h3 className="text-lg sm:text-2xl font-bold text-white truncate">{quest.title}</h3>
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                      quest.difficulty === 'Easy' ? 'bg-green-600 text-green-100' :
-                      quest.difficulty === 'Medium' ? 'bg-yellow-600 text-yellow-100' :
-                      'bg-red-600 text-red-100'
-                    }`}>
-                      {quest.difficulty}
-                    </span>
-                  </div>
-                  
-                  <p className="text-slate-300 mb-4 text-sm sm:text-base">{quest.description}</p>
-                  
-                  <div className="mb-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-slate-400">Progress</span>
-                      <span className="text-white font-bold">{quest.progress}/{quest.total}</span>
-                    </div>
-                    <div className="w-full bg-slate-700 rounded-full h-3">
-                      <div 
-                        className="bg-gradient-to-r from-orange-500 to-red-400 h-3 rounded-full transition-all duration-300"
-                        style={{ width: `${(quest.progress / quest.total) * 100}%` }}
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                    <div className="text-yellow-400 font-medium text-sm sm:text-base">
-                      🏆 {quest.reward}
-                    </div>
-                    <button className="px-4 sm:px-6 py-2 bg-gradient-to-r from-orange-600 to-red-600 rounded-lg text-white font-medium hover:from-orange-500 hover:to-red-500 transition-all duration-300 text-sm sm:text-base w-full sm:w-auto">
-                      Continue Quest
-                    </button>
-                  </div>
-                </div>
-              </div>
+              </ResponsiveCard>
             </motion.div>
           ))}
         </div>
-      </motion.div>
+      </ResponsiveContainer>
     </div>
   );
 };

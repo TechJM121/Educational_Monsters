@@ -1,10 +1,18 @@
 export { AuthManager } from './AuthManager';
 export { AuthLayout } from './AuthLayout';
 export { SignInForm } from './SignInForm';
+export { LoginForm } from './LoginForm';
+export { SignUpForm } from './SignUpForm';
 export { RegistrationFlow } from './RegistrationFlow';
 export { PasswordResetForm } from './PasswordResetForm';
+export { PasswordResetRequestForm } from './PasswordResetRequestForm';
+export { AuthenticationManager } from './AuthenticationManager';
+export { AuthDemo } from './AuthDemo';
 export { CharacterCreationWizard } from './CharacterCreationWizard';
 export { WelcomeTutorial } from './WelcomeTutorial';
 export { AgeVerificationStep } from './AgeVerificationStep';
 export { ParentalConsentStep } from './ParentalConsentStep';
 export { UserRegistrationStep } from './UserRegistrationStep';
+export { default as GoogleSignInButton } from './GoogleSignInButton';
+export { default as OAuthCallback } from './OAuthCallback';
+export { default as OAuthSetup } from './OAuthSetup';

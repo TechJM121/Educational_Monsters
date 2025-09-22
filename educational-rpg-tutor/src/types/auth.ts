@@ -76,13 +76,65 @@ export interface AuthState {
   error: string | null;
 }
 
+export interface OAuthSetupData {
+  age: number;
+  parentEmail?: string; // Required for users under 13
+}
+
+export interface PasswordResetData {
+  email: string;
+}
+
+export interface UpdatePasswordData {
+  currentPassword?: string;
+  newPassword: string;
+  confirmPassword: string;
+}
+
+export interface ProfileUpdateData {
+  name?: string;
+  age?: number;
+  parentEmail?: string;
+}
+
+export interface PasswordValidation {
+  isValid: boolean;
+  errors: string[];
+}
+
 export interface AuthContextType extends AuthState {
+  // Core authentication
   signUp: (data: SignUpData) => Promise<void>;
   signIn: (data: SignInData) => Promise<void>;
   signOut: () => Promise<void>;
+  
+  // OAuth authentication
+  signInWithGoogle: (options?: { redirectTo?: string }) => Promise<void>;
+  handleOAuthCallback: () => Promise<{ user: any; needsAgeCollection: boolean }>;
+  completeOAuthSetup: (data: OAuthSetupData) => Promise<{ user: any; needsParentalConsent: boolean }>;
+  
+  // Password management
+  resetPassword: (email: string) => Promise<void>;
+  updatePassword: (newPassword: string) => Promise<void>;
+  resendEmailConfirmation: (email: string) => Promise<void>;
+  
+  // Profile management
+  updateProfile: (updates: ProfileUpdateData) => Promise<User | null>;
+  refreshProfile: () => Promise<void>;
+  
+  // Parental consent
   requestParentalConsent: (childId: string, parentEmail: string) => Promise<void>;
   grantParentalConsent: (consentData: ParentalConsentData) => Promise<void>;
+  
+  // Utility functions
+  checkEmailExists: (email: string) => Promise<boolean>;
+  validatePassword: (password: string) => PasswordValidation;
+  validateEmail: (email: string) => boolean;
+  isAuthenticated: () => Promise<boolean>;
+  
+  // Error handling
   clearError: () => void;
+  
   // Guest account methods
   createGuestSession: () => Promise<GuestUser>;
   loadGuestSession: (sessionToken: string) => Promise<GuestUser | null>;

@@ -1,5 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { ResponsiveContainer, ResponsiveGrid, ResponsiveText, ResponsiveCard } from '../components/shared/ResponsiveContainer';
+import { useResponsive } from '../hooks/useResponsive';
 
 export const AchievementsPage: React.FC = () => {
   const achievements = [
@@ -51,24 +53,26 @@ export const AchievementsPage: React.FC = () => {
     }
   };
 
+  const { isMobile, isTablet } = useResponsive();
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-yellow-950 to-slate-950 p-4 sm:p-6">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
-        className="max-w-6xl mx-auto"
-      >
-        <div className="text-center mb-6 sm:mb-8">
-          <h1 className="text-3xl sm:text-5xl font-bold bg-gradient-to-r from-yellow-400 to-orange-300 bg-clip-text text-transparent mb-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-yellow-950 to-slate-950">
+      <ResponsiveContainer maxWidth="xl" padding="md" animate>
+        <div className="text-center mb-6 lg:mb-8">
+          <ResponsiveText 
+            as="h1" 
+            size="3xl" 
+            weight="bold" 
+            className="bg-gradient-to-r from-yellow-400 to-orange-300 bg-clip-text text-transparent mb-4"
+          >
             🏆 Achievement Hall
-          </h1>
-          <p className="text-slate-300 text-lg sm:text-xl">
+          </ResponsiveText>
+          <ResponsiveText size="lg" className="text-slate-300">
             Celebrate your learning milestones and unlock new badges
-          </p>
+          </ResponsiveText>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        <ResponsiveGrid columns={isMobile ? 1 : isTablet ? 2 : 3} gap="md">
           {achievements.map((achievement, index) => (
             <motion.div
               key={achievement.title}
@@ -76,30 +80,36 @@ export const AchievementsPage: React.FC = () => {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.6, delay: index * 0.1 }}
               whileHover={{ scale: 1.05, y: -5 }}
-              className={`backdrop-blur-xl rounded-2xl p-4 sm:p-6 border transition-all duration-300 ${
-                achievement.earned 
-                  ? 'bg-white/15 border-yellow-400/30 shadow-lg shadow-yellow-400/20' 
-                  : 'bg-white/5 border-white/10 opacity-60'
-              }`}
             >
-              <div className="text-center">
-                <div className={`w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-r ${getRarityColor(achievement.rarity)} rounded-full flex items-center justify-center text-3xl sm:text-4xl mx-auto mb-4 ${
+              <ResponsiveCard 
+                padding="md" 
+                className={`text-center transition-all duration-300 ${
+                  achievement.earned 
+                    ? 'bg-white/15 border-yellow-400/30 shadow-lg shadow-yellow-400/20' 
+                    : 'bg-white/5 border-white/10 opacity-60'
+                }`}
+              >
+                <div className={`w-16 h-16 lg:w-20 lg:h-20 bg-gradient-to-r ${getRarityColor(achievement.rarity)} rounded-full flex items-center justify-center text-3xl lg:text-4xl mx-auto mb-4 ${
                   achievement.earned ? 'shadow-lg' : 'grayscale'
                 }`}>
                   {achievement.icon}
                 </div>
                 
-                <h3 className={`text-lg sm:text-xl font-bold mb-2 ${
-                  achievement.earned ? 'text-white' : 'text-slate-400'
-                }`}>
+                <ResponsiveText 
+                  as="h3" 
+                  size="lg" 
+                  weight="bold" 
+                  className={`mb-2 ${achievement.earned ? 'text-white' : 'text-slate-400'}`}
+                >
                   {achievement.title}
-                </h3>
+                </ResponsiveText>
                 
-                <p className={`text-sm mb-4 ${
-                  achievement.earned ? 'text-slate-300' : 'text-slate-500'
-                }`}>
+                <ResponsiveText 
+                  size="sm" 
+                  className={`mb-4 ${achievement.earned ? 'text-slate-300' : 'text-slate-500'}`}
+                >
                   {achievement.description}
-                </p>
+                </ResponsiveText>
                 
                 <div className="flex items-center justify-between">
                   <span className={`px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r ${getRarityColor(achievement.rarity)} text-white`}>
@@ -107,48 +117,68 @@ export const AchievementsPage: React.FC = () => {
                   </span>
                   
                   {achievement.earned ? (
-                    <span className="text-green-400 font-medium flex items-center gap-1">
+                    <ResponsiveText size="sm" weight="medium" className="text-green-400 flex items-center gap-1">
                       ✅ Earned
-                    </span>
+                    </ResponsiveText>
                   ) : (
-                    <span className="text-slate-500 font-medium flex items-center gap-1">
+                    <ResponsiveText size="sm" weight="medium" className="text-slate-500 flex items-center gap-1">
                       🔒 Locked
-                    </span>
+                    </ResponsiveText>
                   )}
                 </div>
-              </div>
+              </ResponsiveCard>
             </motion.div>
           ))}
-        </div>
+        </ResponsiveGrid>
 
         {/* Stats */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.5 }}
-          className="mt-12 backdrop-blur-xl bg-white/10 rounded-2xl p-6 border border-white/20"
+          className="mt-8 lg:mt-12"
         >
-          <h2 className="text-2xl font-bold text-white mb-6 text-center">Achievement Stats</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            <div className="text-center">
-              <div className="text-3xl font-bold text-yellow-400">2</div>
-              <div className="text-slate-300">Earned</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-blue-400">3</div>
-              <div className="text-slate-300">Remaining</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-green-400">40%</div>
-              <div className="text-slate-300">Completion</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-purple-400">250</div>
-              <div className="text-slate-300">Total XP</div>
-            </div>
-          </div>
+          <ResponsiveCard padding="md">
+            <ResponsiveText as="h2" size="xl" weight="bold" className="text-white mb-6 text-center">
+              Achievement Stats
+            </ResponsiveText>
+            <ResponsiveGrid columns={isMobile ? 2 : 4} gap="md">
+              <div className="text-center">
+                <ResponsiveText size="2xl" weight="bold" className="text-yellow-400">
+                  2
+                </ResponsiveText>
+                <ResponsiveText size="sm" className="text-slate-300">
+                  Earned
+                </ResponsiveText>
+              </div>
+              <div className="text-center">
+                <ResponsiveText size="2xl" weight="bold" className="text-blue-400">
+                  3
+                </ResponsiveText>
+                <ResponsiveText size="sm" className="text-slate-300">
+                  Remaining
+                </ResponsiveText>
+              </div>
+              <div className="text-center">
+                <ResponsiveText size="2xl" weight="bold" className="text-green-400">
+                  40%
+                </ResponsiveText>
+                <ResponsiveText size="sm" className="text-slate-300">
+                  Completion
+                </ResponsiveText>
+              </div>
+              <div className="text-center">
+                <ResponsiveText size="2xl" weight="bold" className="text-purple-400">
+                  250
+                </ResponsiveText>
+                <ResponsiveText size="sm" className="text-slate-300">
+                  Total XP
+                </ResponsiveText>
+              </div>
+            </ResponsiveGrid>
+          </ResponsiveCard>
         </motion.div>
-      </motion.div>
+      </ResponsiveContainer>
     </div>
   );
 };

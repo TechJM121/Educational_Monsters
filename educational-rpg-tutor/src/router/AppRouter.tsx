@@ -16,6 +16,9 @@ import { InventoryPage } from '../pages/InventoryPage';
 import { LeaderboardPage } from '../pages/LeaderboardPage';
 import { ParentDashboardPage } from '../pages/ParentDashboardPage';
 import { LandingPage } from '../components/landing/LandingPage';
+import OAuthCallback from '../components/auth/OAuthCallback';
+import OAuthSetup from '../components/auth/OAuthSetup';
+import { AuthDemo } from '../components/auth/AuthDemo';
 
 export const AppRouter: React.FC = () => {
   return (
@@ -33,6 +36,27 @@ export const AppRouter: React.FC = () => {
           <Route path="/auth" element={
             <ProtectedRoute requiresAuth={false}>
               <AuthPage />
+            </ProtectedRoute>
+          } />
+
+          {/* OAuth callback route */}
+          <Route path="/auth/callback" element={
+            <ProtectedRoute requiresAuth={false}>
+              <OAuthCallback />
+            </ProtectedRoute>
+          } />
+
+          {/* OAuth setup completion route */}
+          <Route path="/auth/complete-setup" element={
+            <ProtectedRoute requiresAuth={false}>
+              <OAuthSetup />
+            </ProtectedRoute>
+          } />
+
+          {/* Auth demo route */}
+          <Route path="/auth/demo" element={
+            <ProtectedRoute requiresAuth={false}>
+              <AuthDemo />
             </ProtectedRoute>
           } />
 

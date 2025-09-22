@@ -4,7 +4,7 @@ import { useContext, createContext, useReducer, useEffect, ReactNode } from 'rea
 import { AuthService } from '../services/authService';
 import { MockAuthService } from '../services/mockAuthService';
 import { isSupabaseConfigured } from '../services/supabaseClient';
-import type { AuthState, AuthAction, AuthContextType, SignUpData, SignInData, ParentalConsentData } from '../types/auth';
+import type { AuthState, AuthAction, AuthContextType, SignUpData, SignInData, ParentalConsentData, OAuthSetupData, GuestUser, GuestConversionData, User, ProfileUpdateData, PasswordValidation } from '../types/auth';
 
 // Use mock service if Supabase isn't configured
 const authService = isSupabaseConfigured ? AuthService : MockAuthService;
@@ -13,6 +13,7 @@ const authService = isSupabaseConfigured ? AuthService : MockAuthService;
 const initialState: AuthState = {
   user: null,
   profile: null,
+  guestUser: null,
   loading: true,
   error: null
 };
@@ -26,6 +27,8 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
       return { ...state, user: action.payload };
     case 'SET_PROFILE':
       return { ...state, profile: action.payload };
+    case 'SET_GUEST_USER':
+      return { ...state, guestUser: action.payload };
     case 'SET_ERROR':
       return { ...state, error: action.payload, loading: false };
     case 'CLEAR_ERROR':
@@ -205,19 +208,229 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
   
+  // Google OAuth sign in
+  const signInWithGoogle = async (options?: { redirectTo?: string }) => {
+    try {
+      dispatch({ type: 'SET_LOADING', payload: true });
+      dispatch({ type: 'CLEAR_ERROR' });
+      
+      await authService.signInWithGoogle(options);
+      // Note: The actual user state will be set by the OAuth callback handler
+    } catch (error) {
+      dispatch({ type: 'SET_ERROR', payload: error instanceof Error ? error.message : 'Google sign in failed' });
+    }
+  };
+
+  // Handle OAuth callback
+  const handleOAuthCallback = async () => {
+    try {
+      dispatch({ type: 'SET_LOADING', payload: true });
+      dispatch({ type: 'CLEAR_ERROR' });
+      
+      const result = await authService.handleOAuthCallback();
+      
+      if (result.user) {
+        dispatch({ type: 'SET_USER', payload: {
+          id: result.user.id,
+          email: result.user.email || '',
+          emailConfirmed: !!result.user.email_confirmed_at
+        }});
+        
+        if (!result.needsAgeCollection) {
+          const profile = await authService.getCurrentUserProfile();
+          dispatch({ type: 'SET_PROFILE', payload: profile });
+        }
+      }
+      
+      dispatch({ type: 'SET_LOADING', payload: false });
+      return result;
+    } catch (error) {
+      dispatch({ type: 'SET_ERROR', payload: error instanceof Error ? error.message : 'OAuth callback failed' });
+      throw error;
+    }
+  };
+
+  // Complete OAuth setup
+  const completeOAuthSetup = async (data: OAuthSetupData) => {
+    try {
+      dispatch({ type: 'SET_LOADING', payload: true });
+      dispatch({ type: 'CLEAR_ERROR' });
+      
+      const result = await authService.completeOAuthSetup(data.age, data.parentEmail);
+      
+      if (result.user && !result.needsParentalConsent) {
+        const profile = await authService.getCurrentUserProfile();
+        dispatch({ type: 'SET_PROFILE', payload: profile });
+      }
+      
+      dispatch({ type: 'SET_LOADING', payload: false });
+      return result;
+    } catch (error) {
+      dispatch({ type: 'SET_ERROR', payload: error instanceof Error ? error.message : 'OAuth setup failed' });
+      throw error;
+    }
+  };
+
+  // Password management
+  const resetPassword = async (email: string) => {
+    try {
+      dispatch({ type: 'SET_LOADING', payload: true });
+      dispatch({ type: 'CLEAR_ERROR' });
+      
+      await authService.resetPassword(email);
+      
+      dispatch({ type: 'SET_ERROR', payload: 'Password reset email sent! Check your inbox for instructions.' });
+      dispatch({ type: 'SET_LOADING', payload: false });
+    } catch (error) {
+      dispatch({ type: 'SET_ERROR', payload: error instanceof Error ? error.message : 'Password reset failed' });
+    }
+  };
+
+  const updatePassword = async (newPassword: string) => {
+    try {
+      dispatch({ type: 'SET_LOADING', payload: true });
+      dispatch({ type: 'CLEAR_ERROR' });
+      
+      await authService.updatePassword(newPassword);
+      
+      dispatch({ type: 'SET_ERROR', payload: 'Password updated successfully!' });
+      dispatch({ type: 'SET_LOADING', payload: false });
+    } catch (error) {
+      dispatch({ type: 'SET_ERROR', payload: error instanceof Error ? error.message : 'Password update failed' });
+    }
+  };
+
+  const resendEmailConfirmation = async (email: string) => {
+    try {
+      dispatch({ type: 'SET_LOADING', payload: true });
+      dispatch({ type: 'CLEAR_ERROR' });
+      
+      await authService.resendEmailConfirmation(email);
+      
+      dispatch({ type: 'SET_ERROR', payload: 'Confirmation email sent! Check your inbox.' });
+      dispatch({ type: 'SET_LOADING', payload: false });
+    } catch (error) {
+      dispatch({ type: 'SET_ERROR', payload: error instanceof Error ? error.message : 'Failed to send confirmation email' });
+    }
+  };
+
+  // Profile management
+  const updateProfile = async (updates: ProfileUpdateData): Promise<User | null> => {
+    try {
+      dispatch({ type: 'SET_LOADING', payload: true });
+      dispatch({ type: 'CLEAR_ERROR' });
+      
+      const updatedProfile = await authService.updateProfile(updates);
+      
+      if (updatedProfile) {
+        dispatch({ type: 'SET_PROFILE', payload: updatedProfile });
+      }
+      
+      dispatch({ type: 'SET_LOADING', payload: false });
+      return updatedProfile;
+    } catch (error) {
+      dispatch({ type: 'SET_ERROR', payload: error instanceof Error ? error.message : 'Profile update failed' });
+      return null;
+    }
+  };
+
+  const refreshProfile = async () => {
+    try {
+      const profile = await authService.getCurrentUserProfile();
+      dispatch({ type: 'SET_PROFILE', payload: profile });
+    } catch (error) {
+      console.error('Refresh profile error:', error);
+    }
+  };
+
+  // Utility functions
+  const checkEmailExists = async (email: string): Promise<boolean> => {
+    try {
+      return await authService.checkEmailExists(email);
+    } catch (error) {
+      console.error('Check email error:', error);
+      return false;
+    }
+  };
+
+  const validatePassword = (password: string): PasswordValidation => {
+    return authService.validatePassword(password);
+  };
+
+  const validateEmail = (email: string): boolean => {
+    return authService.validateEmail(email);
+  };
+
+  const isAuthenticated = async (): Promise<boolean> => {
+    return await authService.isAuthenticated();
+  };
+
   // Clear error
   const clearError = () => {
     dispatch({ type: 'CLEAR_ERROR' });
   };
+
+  // Guest account methods (placeholder implementations)
+  const createGuestSession = async (): Promise<GuestUser> => {
+    throw new Error('Guest sessions not implemented yet');
+  };
+
+  const loadGuestSession = async (sessionToken: string): Promise<GuestUser | null> => {
+    throw new Error('Guest sessions not implemented yet');
+  };
+
+  const convertGuestToUser = async (sessionToken: string, conversionData: GuestConversionData): Promise<User> => {
+    throw new Error('Guest conversion not implemented yet');
+  };
+
+  const isGuestSession = (): boolean => {
+    return false;
+  };
+
+  const getGuestUser = (): GuestUser | null => {
+    return null;
+  };
   
   const value: AuthContextType = {
     ...state,
+    // Core authentication
     signUp,
     signIn,
     signOut,
+    
+    // OAuth authentication
+    signInWithGoogle,
+    handleOAuthCallback,
+    completeOAuthSetup,
+    
+    // Password management
+    resetPassword,
+    updatePassword,
+    resendEmailConfirmation,
+    
+    // Profile management
+    updateProfile,
+    refreshProfile,
+    
+    // Parental consent
     requestParentalConsent,
     grantParentalConsent,
-    clearError
+    
+    // Utility functions
+    checkEmailExists,
+    validatePassword,
+    validateEmail,
+    isAuthenticated,
+    
+    // Error handling
+    clearError,
+    
+    // Guest account methods
+    createGuestSession,
+    loadGuestSession,
+    convertGuestToUser,
+    isGuestSession,
+    getGuestUser
   };
   
   return (

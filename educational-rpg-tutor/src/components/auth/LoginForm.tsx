@@ -1,61 +1,82 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useAuth } from '../../hooks/useAuth';
 import { AuthLayout } from './AuthLayout';
 import { AnimatedButton } from '../shared/AnimatedButton';
-import { AuthService } from '../../services/authService';
 import { LoadingSpinner } from '../shared/LoadingSpinner';
 import GoogleSignInButton from './GoogleSignInButton';
 
-interface SignInFormProps {
-  onSignInSuccess: () => void;
-  onSwitchToRegister: () => void;
-  onForgotPassword: () => void;
+interface LoginFormProps {
+  onLoginSuccess?: () => void;
+  onSwitchToRegister?: () => void;
+  onForgotPassword?: () => void;
 }
 
-export const SignInForm: React.FC<SignInFormProps> = ({
-  onSignInSuccess,
+export const LoginForm: React.FC<LoginFormProps> = ({
+  onLoginSuccess,
   onSwitchToRegister,
   onForgotPassword
 }) => {
+  const { signIn, loading, error, clearError, validateEmail } = useAuth();
+  
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string>('');
   const [showPassword, setShowPassword] = useState(false);
+  const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Clear errors when form data changes
+  useEffect(() => {
+    if (error) clearError();
+    setFormErrors({});
+  }, [formData, error, clearError]);
+
+  const validateForm = (): boolean => {
+    const errors: { [key: string]: string } = {};
+
+    // Email validation
+    if (!formData.email) {
+      errors.email = 'Email is required';
+    } else if (!validateEmail(formData.email)) {
+      errors.email = 'Please enter a valid email address';
+    }
+
+    // Password validation
+    if (!formData.password) {
+      errors.password = 'Password is required';
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-    if (error) setError(''); // Clear error when user starts typing
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setError('');
+    
+    if (!validateForm()) return;
 
+    setIsSubmitting(true);
+    
     try {
-      await AuthService.signIn(formData);
-      onSignInSuccess();
+      await signIn(formData);
+      onLoginSuccess?.();
     } catch (err) {
-      if (err instanceof Error) {
-        if (err.message.includes('Invalid login credentials')) {
-          setError('Invalid email or password. Please check your credentials and try again.');
-        } else if (err.message.includes('Email not confirmed')) {
-          setError('Please check your email and click the confirmation link before signing in.');
-        } else if (err.message.includes('Too many requests')) {
-          setError('Too many sign-in attempts. Please wait a few minutes before trying again.');
-        } else {
-          setError(err.message);
-        }
-      } else {
-        setError('Sign in failed. Please try again.');
-      }
+      // Error is handled by the auth context
+      console.error('Login error:', err);
     } finally {
-      setLoading(false);
+      setIsSubmitting(false);
     }
+  };
+
+  const handleGoogleError = (errorMessage: string) => {
+    console.error('Google sign in error:', errorMessage);
   };
 
   return (
@@ -64,6 +85,7 @@ export const SignInForm: React.FC<SignInFormProps> = ({
       subtitle="Sign in to continue your learning adventure"
     >
       <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Email Field */}
         <div>
           <label htmlFor="email" className="block text-sm font-medium text-slate-300 mb-2">
             Email Address
@@ -74,13 +96,25 @@ export const SignInForm: React.FC<SignInFormProps> = ({
             name="email"
             value={formData.email}
             onChange={handleInputChange}
-            className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            className={`w-full px-4 py-3 bg-slate-700 border rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors ${
+              formErrors.email ? 'border-red-500' : 'border-slate-600'
+            }`}
             placeholder="your.email@example.com"
-            required
-            disabled={loading}
+            disabled={loading || isSubmitting}
+            autoComplete="email"
           />
+          {formErrors.email && (
+            <motion.p
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-red-400 text-sm mt-1"
+            >
+              {formErrors.email}
+            </motion.p>
+          )}
         </div>
 
+        {/* Password Field */}
         <div>
           <label htmlFor="password" className="block text-sm font-medium text-slate-300 mb-2">
             Password
@@ -92,22 +126,35 @@ export const SignInForm: React.FC<SignInFormProps> = ({
               name="password"
               value={formData.password}
               onChange={handleInputChange}
-              className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent pr-12"
+              className={`w-full px-4 py-3 bg-slate-700 border rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent pr-12 transition-colors ${
+                formErrors.password ? 'border-red-500' : 'border-slate-600'
+              }`}
               placeholder="Enter your password"
-              required
-              disabled={loading}
+              disabled={loading || isSubmitting}
+              autoComplete="current-password"
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-300 disabled:opacity-50"
-              disabled={loading}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-300 disabled:opacity-50 transition-colors"
+              disabled={loading || isSubmitting}
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
             >
               {showPassword ? '👁️' : '👁️‍🗨️'}
             </button>
           </div>
+          {formErrors.password && (
+            <motion.p
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-red-400 text-sm mt-1"
+            >
+              {formErrors.password}
+            </motion.p>
+          )}
         </div>
 
+        {/* Global Error Display */}
         {error && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
@@ -118,12 +165,13 @@ export const SignInForm: React.FC<SignInFormProps> = ({
           </motion.div>
         )}
 
+        {/* Submit Button */}
         <AnimatedButton
           type="submit"
           className="w-full"
-          disabled={loading}
+          disabled={loading || isSubmitting}
         >
-          {loading ? (
+          {loading || isSubmitting ? (
             <div className="flex items-center justify-center">
               <LoadingSpinner size="sm" />
               <span className="ml-2">Signing In...</span>
@@ -134,6 +182,7 @@ export const SignInForm: React.FC<SignInFormProps> = ({
         </AnimatedButton>
       </form>
 
+      {/* OAuth Section */}
       <div className="mt-6">
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
@@ -146,23 +195,25 @@ export const SignInForm: React.FC<SignInFormProps> = ({
         
         <div className="mt-6">
           <GoogleSignInButton 
-            onError={setError}
+            onError={handleGoogleError}
             redirectTo="/dashboard"
           />
         </div>
       </div>
 
+      {/* Forgot Password Link */}
       <div className="mt-6 text-center">
         <button
           type="button"
           onClick={onForgotPassword}
           className="text-primary-400 hover:text-primary-300 text-sm transition-colors"
-          disabled={loading}
+          disabled={loading || isSubmitting}
         >
           Forgot your password?
         </button>
       </div>
 
+      {/* Switch to Register */}
       <div className="mt-8 text-center">
         <p className="text-slate-400 text-sm mb-4">
           New to Educational RPG Tutor?
@@ -172,12 +223,13 @@ export const SignInForm: React.FC<SignInFormProps> = ({
           onClick={onSwitchToRegister}
           variant="secondary"
           className="w-full"
-          disabled={loading}
+          disabled={loading || isSubmitting}
         >
           Create New Account
         </AnimatedButton>
       </div>
 
+      {/* Help Text */}
       <div className="mt-6 text-xs text-slate-400 text-center">
         <p>
           Having trouble signing in? Make sure you've confirmed your email address

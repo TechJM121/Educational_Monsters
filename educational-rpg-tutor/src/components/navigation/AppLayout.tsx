@@ -26,10 +26,22 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
   showNavigation = true 
 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isLargeScreen, setIsLargeScreen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+
+  // Check screen size
+  React.useEffect(() => {
+    const checkScreenSize = () => {
+      setIsLargeScreen(window.innerWidth >= 1024);
+    };
+
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
+    return () => window.removeEventListener('resize', checkScreenSize);
+  }, []);
 
   if (!showNavigation) {
     return (
@@ -44,10 +56,14 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
       <div className="flex">
         {/* Sidebar Navigation */}
         <motion.aside
-          initial={{ x: -300 }}
-          animate={{ x: isMenuOpen ? 0 : -300 }}
+          initial={isLargeScreen ? { x: 0 } : { x: -300 }}
+          animate={isLargeScreen ? { x: 0 } : { x: isMenuOpen ? 0 : -300 }}
           transition={{ duration: 0.3 }}
-          className="fixed inset-y-0 left-0 z-50 w-72 sm:w-80 bg-slate-900/95 backdrop-blur-xl border-r border-blue-500/20 lg:translate-x-0 lg:static lg:inset-0"
+          className={`${
+            isLargeScreen 
+              ? 'relative w-72 xl:w-80' 
+              : 'fixed inset-y-0 left-0 z-50 w-72 sm:w-80'
+          } bg-slate-900/95 backdrop-blur-xl border-r border-blue-500/20 safe-area-inset`}
         >
           <div className="flex flex-col h-full">
             {/* Logo */}
@@ -80,7 +96,9 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
                       whileTap={{ scale: 0.98 }}
                       onClick={() => {
                         navigate(item.path);
-                        setIsMenuOpen(false);
+                        if (!isLargeScreen) {
+                          setIsMenuOpen(false);
+                        }
                       }}
                       className={`w-full flex items-center gap-3 sm:gap-4 px-3 sm:px-4 py-3 rounded-xl transition-all duration-300 text-left ${
                         isActive
@@ -117,38 +135,40 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
         </motion.aside>
 
         {/* Main Content Area */}
-        <div className="flex-1 lg:ml-80">
+        <div className="flex-1">
           {/* Top Bar */}
-          <header className="sticky top-0 z-30 bg-slate-900/95 backdrop-blur-sm border-b border-blue-500/20">
-            <div className="flex items-center justify-between p-4">
+          <header className="sticky top-0 z-30 bg-slate-900/95 backdrop-blur-sm border-b border-blue-500/20 safe-area-inset">
+            <div className="flex items-center justify-between p-3 sm:p-4">
               {/* Mobile menu button */}
-              <button
-                onClick={toggleMenu}
-                className="lg:hidden p-2 rounded-lg hover:bg-slate-700/50 transition-colors"
-                aria-label="Toggle navigation menu"
-              >
-                <motion.div
-                  animate={{ rotate: isMenuOpen ? 90 : 0 }}
-                  transition={{ duration: 0.2 }}
+              {!isLargeScreen && (
+                <button
+                  onClick={toggleMenu}
+                  className="p-2 rounded-lg hover:bg-slate-700/50 transition-colors touch-target"
+                  aria-label="Toggle navigation menu"
                 >
-                  <span className="text-2xl text-white">☰</span>
-                </motion.div>
-              </button>
+                  <motion.div
+                    animate={{ rotate: isMenuOpen ? 90 : 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <span className="text-xl sm:text-2xl text-white">☰</span>
+                  </motion.div>
+                </button>
+              )}
 
               {/* Page Title */}
-              <div className="flex-1 ml-2 sm:ml-4">
-                <h2 className="text-lg sm:text-xl font-semibold text-white truncate">
+              <div className={`flex-1 min-w-0 ${!isLargeScreen ? 'ml-2 sm:ml-4' : ''}`}>
+                <h2 className="text-base sm:text-lg lg:text-xl font-semibold text-white truncate">
                   {navigationItems.find(item => item.path === location.pathname)?.label || 'LearnCraft'}
                 </h2>
               </div>
 
               {/* User info */}
-              <div className="flex items-center gap-2 sm:gap-3">
+              <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
                 <div className="text-right hidden md:block">
-                  <p className="text-sm text-slate-300">Welcome,</p>
-                  <p className="text-blue-400 font-bold text-sm">Guest Explorer</p>
+                  <p className="text-xs lg:text-sm text-slate-300">Welcome,</p>
+                  <p className="text-blue-400 font-bold text-xs lg:text-sm">Guest Explorer</p>
                 </div>
-                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-blue-500 to-cyan-400 rounded-full flex items-center justify-center text-lg sm:text-xl">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-blue-500 to-cyan-400 rounded-full flex items-center justify-center text-base sm:text-lg lg:text-xl">
                   👤
                 </div>
               </div>
@@ -164,13 +184,13 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
         </div>
 
         {/* Mobile Overlay */}
-        {isMenuOpen && (
+        {isMenuOpen && !isLargeScreen && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setIsMenuOpen(false)}
-            className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+            className="fixed inset-0 bg-black/50 z-40"
           />
         )}
       </div>

@@ -6,6 +6,7 @@ import { ParentalConsentStep } from './ParentalConsentStep';
 import { UserRegistrationStep } from './UserRegistrationStep';
 import { AuthService } from '../../services/authService';
 import { LoadingSpinner } from '../shared/LoadingSpinner';
+import GoogleSignInButton from './GoogleSignInButton';
 
 type RegistrationStep = 'age' | 'consent' | 'registration' | 'complete';
 
@@ -111,6 +112,24 @@ export const RegistrationFlow: React.FC<RegistrationFlowProps> = ({
         >
           {error}
         </motion.div>
+      )}
+
+      {currentStep === 'age' && (
+        <div className="mb-6">
+          <GoogleSignInButton 
+            onError={setError}
+            redirectTo="/auth/complete-setup"
+          />
+          
+          <div className="mt-6 relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-slate-600"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-slate-800 text-slate-400">Or create account manually</span>
+            </div>
+          </div>
+        </div>
       )}
 
       <AnimatePresence mode="wait">

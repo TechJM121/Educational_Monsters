@@ -17,7 +17,8 @@ export const supabase = createClient(finalUrl, finalKey, {
   auth: {
     autoRefreshToken: true,
     persistSession: true,
-    detectSessionInUrl: true
+    detectSessionInUrl: true,
+    redirectTo: `${window.location.origin}/auth/callback`
   }
 });
 

@@ -93,13 +93,48 @@
     @apply hover:scale-105 hover:shadow-lg;
     @apply active:scale-95;
     @apply border-2 border-primary-400;
+    @apply touch-target;
+  }
+
+  .rpg-button-mobile {
+    @apply rpg-button;
+    @apply px-3 py-3 text-sm;
+  }
+
+  @media (min-width: 640px) {
+    .rpg-button-mobile {
+      @apply px-4 py-2 text-base;
+    }
   }
 
   .rpg-card {
     @apply bg-gradient-to-br from-slate-800 to-slate-900;
-    @apply border border-slate-700 rounded-xl p-6;
+    @apply border border-slate-700 rounded-xl p-4;
     @apply shadow-xl backdrop-blur-sm;
     @apply hover:border-primary-500 transition-all duration-300;
+  }
+
+  @media (min-width: 640px) {
+    .rpg-card {
+      @apply p-6;
+    }
+  }
+
+  .rpg-card-mobile {
+    @apply rpg-card;
+    @apply p-3 rounded-lg;
+  }
+
+  @media (min-width: 640px) {
+    .rpg-card-mobile {
+      @apply p-4 rounded-xl;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .rpg-card-mobile {
+      @apply p-6;
+    }
   }
 
   .stat-bar {
@@ -132,8 +167,88 @@
 
   .level-indicator {
     @apply bg-gradient-to-br from-purple-500 to-purple-700;
-    @apply text-white font-bold rounded-full w-12 h-12;
+    @apply text-white font-bold rounded-full w-10 h-10;
     @apply flex items-center justify-center;
     @apply border-2 border-purple-300 shadow-lg;
+    @apply text-sm;
+  }
+
+  @media (min-width: 640px) {
+    .level-indicator {
+      @apply w-12 h-12 text-base;
+    }
+  }
+
+  /* Responsive spacing utilities */
+  .spacing-responsive {
+    @apply p-4;
+  }
+
+  @media (min-width: 640px) {
+    .spacing-responsive {
+      @apply p-6;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .spacing-responsive {
+      @apply p-8;
+    }
+  }
+
+  /* Responsive text utilities */
+  .text-responsive-title {
+    @apply text-2xl;
+  }
+
+  @media (min-width: 640px) {
+    .text-responsive-title {
+      @apply text-3xl;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .text-responsive-title {
+      @apply text-4xl;
+    }
+  }
+
+  .text-responsive-subtitle {
+    @apply text-lg;
+  }
+
+  @media (min-width: 640px) {
+    .text-responsive-subtitle {
+      @apply text-xl;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .text-responsive-subtitle {
+      @apply text-2xl;
+    }
+  }
+
+  /* Mobile-first grid utilities */
+  .grid-responsive-auto {
+    @apply grid grid-cols-1 gap-4;
+  }
+
+  @media (min-width: 640px) {
+    .grid-responsive-auto {
+      @apply grid-cols-2 gap-6;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .grid-responsive-auto {
+      @apply grid-cols-3 gap-8;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .grid-responsive-auto {
+      @apply grid-cols-4;
+    }
   }
 }
