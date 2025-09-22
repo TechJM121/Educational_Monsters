@@ -14,10 +14,10 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({ children, title, subtitl
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="w-full max-w-md"
+        className="w-full max-w-lg lg:max-w-xl"
       >
-        <div className="rpg-card">
-          <div className="text-center mb-8">
+        <div className="rpg-card p-6 lg:p-8">
+          <div className="text-center mb-6 lg:mb-8">
             <h1 className="text-4xl font-rpg text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-secondary-400 mb-2">
               {title}
             </h1>

@@ -84,7 +84,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
       title="Welcome Back, Hero!"
       subtitle="Sign in to continue your learning adventure"
     >
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-5">
         {/* Email Field */}
         <div>
           <label htmlFor="email" className="block text-sm font-medium text-slate-300 mb-2">

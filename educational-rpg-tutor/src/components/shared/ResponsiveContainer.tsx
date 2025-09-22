@@ -23,7 +23,7 @@ export const ResponsiveContainer: React.FC<ResponsiveContainerProps> = ({
 
   const maxWidthClasses = {
     sm: 'max-w-sm',
-    md: 'max-w-md',
+    md: 'max-w-lg lg:max-w-xl',
     lg: 'max-w-4xl',
     xl: 'max-w-7xl',
     '2xl': 'max-w-screen-2xl',

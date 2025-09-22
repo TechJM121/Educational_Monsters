@@ -74,7 +74,7 @@ export const AuthPage: React.FC = () => {
         ))}
       </div>
 
-      <ResponsiveContainer maxWidth="sm" padding="md" className="relative z-10">
+      <ResponsiveContainer maxWidth="md" padding="md" className="relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
@@ -139,7 +139,7 @@ export const AuthPage: React.FC = () => {
               </div>
 
               {/* Auth Options */}
-              <div className="space-y-4">
+              <div className="space-y-4 lg:space-y-5">
                 {/* Guest Login */}
                 <motion.button
                   initial={{ opacity: 0, x: -20 }}
@@ -149,7 +149,7 @@ export const AuthPage: React.FC = () => {
                   whileTap={{ scale: 0.98 }}
                   onClick={handleGuestLogin}
                   disabled={isLoading}
-                  className="w-full px-4 lg:px-6 py-3 lg:py-4 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-xl text-white font-semibold shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 lg:gap-3 touch-target"
+                  className="w-full px-6 lg:px-8 py-4 lg:py-5 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-xl text-white font-semibold shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 lg:gap-4 touch-target text-base lg:text-lg"
                 >
                   {isLoading ? (
                     <>
@@ -184,7 +184,7 @@ export const AuthPage: React.FC = () => {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={handleShowSignIn}
-                  className="w-full px-4 lg:px-6 py-3 lg:py-4 border-2 border-blue-500 rounded-xl text-blue-400 font-semibold hover:bg-blue-500/10 transition-all duration-300 flex items-center justify-center gap-2 lg:gap-3 touch-target"
+                  className="w-full px-6 lg:px-8 py-4 lg:py-5 border-2 border-blue-500 rounded-xl text-blue-400 font-semibold hover:bg-blue-500/10 transition-all duration-300 flex items-center justify-center gap-3 lg:gap-4 touch-target text-base lg:text-lg"
                 >
                   <span className="text-lg lg:text-xl">🔐</span>
                   <ResponsiveText size="base">Sign In</ResponsiveText>
@@ -198,7 +198,7 @@ export const AuthPage: React.FC = () => {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={handleShowSignUp}
-                  className="w-full px-4 lg:px-6 py-3 lg:py-4 border-2 border-cyan-500 rounded-xl text-cyan-400 font-semibold hover:bg-cyan-500/10 transition-all duration-300 flex items-center justify-center gap-2 lg:gap-3 touch-target"
+                  className="w-full px-6 lg:px-8 py-4 lg:py-5 border-2 border-cyan-500 rounded-xl text-cyan-400 font-semibold hover:bg-cyan-500/10 transition-all duration-300 flex items-center justify-center gap-3 lg:gap-4 touch-target text-base lg:text-lg"
                 >
                   <span className="text-lg lg:text-xl">✨</span>
                   <ResponsiveText size="base">Create Account</ResponsiveText>

@@ -15,6 +15,7 @@ import { AchievementsPage } from '../pages/AchievementsPage';
 import { InventoryPage } from '../pages/InventoryPage';
 import { LeaderboardPage } from '../pages/LeaderboardPage';
 import { ParentDashboardPage } from '../pages/ParentDashboardPage';
+import { GameModesPage } from '../pages/GameModesPage';
 import { LandingPage } from '../components/landing/LandingPage';
 import OAuthCallback from '../components/auth/OAuthCallback';
 import OAuthSetup from '../components/auth/OAuthSetup';
@@ -111,6 +112,12 @@ export const AppRouter: React.FC = () => {
             <Route path="parent-dashboard" element={
               <ProtectedRoute>
                 <ParentDashboardPage />
+              </ProtectedRoute>
+            } />
+
+            <Route path="game-modes" element={
+              <ProtectedRoute>
+                <GameModesPage />
               </ProtectedRoute>
             } />
 

@@ -164,34 +164,65 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Name Field */}
-        <div>
-          <label htmlFor="name" className="block text-sm font-medium text-slate-300 mb-2">
-            Full Name
-          </label>
-          <input
-            type="text"
-            id="name"
-            name="name"
-            value={formData.name}
-            onChange={handleInputChange}
-            className={`w-full px-4 py-3 bg-slate-700 border rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors ${
-              formErrors.name ? 'border-red-500' : 'border-slate-600'
-            }`}
-            placeholder="Enter your full name"
-            disabled={loading || isSubmitting}
-            autoComplete="name"
-          />
-          {formErrors.name && (
-            <motion.p
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-red-400 text-sm mt-1"
-            >
-              {formErrors.name}
-            </motion.p>
-          )}
+      <form onSubmit={handleSubmit} className="space-y-5">
+        {/* Name and Age Row */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
+          <div>
+            <label htmlFor="name" className="block text-sm font-medium text-slate-300 mb-2">
+              Full Name
+            </label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              value={formData.name}
+              onChange={handleInputChange}
+              className={`w-full px-4 py-3 bg-slate-700 border rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors ${
+                formErrors.name ? 'border-red-500' : 'border-slate-600'
+              }`}
+              placeholder="Enter your full name"
+              disabled={loading || isSubmitting}
+              autoComplete="name"
+            />
+            {formErrors.name && (
+              <motion.p
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-red-400 text-sm mt-1"
+              >
+                {formErrors.name}
+              </motion.p>
+            )}
+          </div>
+
+          <div>
+            <label htmlFor="age" className="block text-sm font-medium text-slate-300 mb-2">
+              Your Age
+            </label>
+            <input
+              type="number"
+              id="age"
+              name="age"
+              min="3"
+              max="18"
+              value={formData.age}
+              onChange={handleInputChange}
+              className={`w-full px-4 py-3 bg-slate-700 border rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors ${
+                formErrors.age ? 'border-red-500' : 'border-slate-600'
+              }`}
+              placeholder="Enter your age"
+              disabled={loading || isSubmitting}
+            />
+            {formErrors.age && (
+              <motion.p
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-red-400 text-sm mt-1"
+              >
+                {formErrors.age}
+              </motion.p>
+            )}
+          </div>
         </div>
 
         {/* Email Field */}
@@ -219,36 +250,6 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
               className="text-red-400 text-sm mt-1"
             >
               {formErrors.email}
-            </motion.p>
-          )}
-        </div>
-
-        {/* Age Field */}
-        <div>
-          <label htmlFor="age" className="block text-sm font-medium text-slate-300 mb-2">
-            Your Age
-          </label>
-          <input
-            type="number"
-            id="age"
-            name="age"
-            min="3"
-            max="18"
-            value={formData.age}
-            onChange={handleInputChange}
-            className={`w-full px-4 py-3 bg-slate-700 border rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors ${
-              formErrors.age ? 'border-red-500' : 'border-slate-600'
-            }`}
-            placeholder="Enter your age"
-            disabled={loading || isSubmitting}
-          />
-          {formErrors.age && (
-            <motion.p
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-red-400 text-sm mt-1"
-            >
-              {formErrors.age}
             </motion.p>
           )}
         </div>
@@ -291,105 +292,106 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
           </motion.div>
         )}
 
-        {/* Password Field */}
-        <div>
-          <label htmlFor="password" className="block text-sm font-medium text-slate-300 mb-2">
-            Password
-          </label>
-          <div className="relative">
-            <input
-              type={showPassword ? 'text' : 'password'}
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleInputChange}
-              className={`w-full px-4 py-3 bg-slate-700 border rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent pr-12 transition-colors ${
-                formErrors.password ? 'border-red-500' : 'border-slate-600'
-              }`}
-              placeholder="Create a strong password"
-              disabled={loading || isSubmitting}
-              autoComplete="new-password"
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-300 disabled:opacity-50 transition-colors"
-              disabled={loading || isSubmitting}
-              aria-label={showPassword ? 'Hide password' : 'Show password'}
-            >
-              {showPassword ? '👁️' : '👁️‍🗨️'}
-            </button>
+        {/* Password Fields */}
+        <div className="space-y-4">
+          <div>
+            <label htmlFor="password" className="block text-sm font-medium text-slate-300 mb-2">
+              Password
+            </label>
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleInputChange}
+                className={`w-full px-4 py-3 bg-slate-700 border rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent pr-12 transition-colors ${
+                  formErrors.password ? 'border-red-500' : 'border-slate-600'
+                }`}
+                placeholder="Create a strong password"
+                disabled={loading || isSubmitting}
+                autoComplete="new-password"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-300 disabled:opacity-50 transition-colors"
+                disabled={loading || isSubmitting}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {showPassword ? '👁️' : '👁️‍🗨️'}
+              </button>
+            </div>
+            
+            {formErrors.password && (
+              <motion.p
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-red-400 text-sm mt-1"
+              >
+                {formErrors.password}
+              </motion.p>
+            )}
           </div>
-          
+
+          <div>
+            <label htmlFor="confirmPassword" className="block text-sm font-medium text-slate-300 mb-2">
+              Confirm Password
+            </label>
+            <div className="relative">
+              <input
+                type={showConfirmPassword ? 'text' : 'password'}
+                id="confirmPassword"
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleInputChange}
+                className={`w-full px-4 py-3 bg-slate-700 border rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent pr-12 transition-colors ${
+                  formErrors.confirmPassword ? 'border-red-500' : 'border-slate-600'
+                }`}
+                placeholder="Confirm your password"
+                disabled={loading || isSubmitting}
+                autoComplete="new-password"
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-300 disabled:opacity-50 transition-colors"
+                disabled={loading || isSubmitting}
+                aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+              >
+                {showConfirmPassword ? '👁️' : '👁️‍🗨️'}
+              </button>
+            </div>
+            {formErrors.confirmPassword && (
+              <motion.p
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-red-400 text-sm mt-1"
+              >
+                {formErrors.confirmPassword}
+              </motion.p>
+            )}
+          </div>
+
           {/* Password Requirements */}
           {formData.password && (
-            <div className="mt-2 text-xs">
-              <p className="text-slate-400 mb-1">Password requirements:</p>
-              <ul className="space-y-1">
+            <div className="text-xs bg-slate-800/50 rounded-lg p-3 border border-slate-700">
+              <p className="text-slate-400 mb-2 font-medium">Password requirements:</p>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-1">
                 {passwordValidation.errors.map((error, index) => (
-                  <li key={index} className="text-red-400 flex items-center">
-                    <span className="mr-1">•</span>
-                    {error}
-                  </li>
+                  <div key={index} className="text-red-400 flex items-center">
+                    <span className="mr-1 text-xs">•</span>
+                    <span className="text-xs">{error}</span>
+                  </div>
                 ))}
                 {passwordValidation.isValid && (
-                  <li className="text-green-400 flex items-center">
+                  <div className="text-green-400 flex items-center col-span-full">
                     <span className="mr-1">✓</span>
-                    Password meets all requirements
-                  </li>
+                    <span className="text-xs font-medium">Password meets all requirements</span>
+                  </div>
                 )}
-              </ul>
+              </div>
             </div>
-          )}
-          
-          {formErrors.password && (
-            <motion.p
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-red-400 text-sm mt-1"
-            >
-              {formErrors.password}
-            </motion.p>
-          )}
-        </div>
-
-        {/* Confirm Password Field */}
-        <div>
-          <label htmlFor="confirmPassword" className="block text-sm font-medium text-slate-300 mb-2">
-            Confirm Password
-          </label>
-          <div className="relative">
-            <input
-              type={showConfirmPassword ? 'text' : 'password'}
-              id="confirmPassword"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleInputChange}
-              className={`w-full px-4 py-3 bg-slate-700 border rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent pr-12 transition-colors ${
-                formErrors.confirmPassword ? 'border-red-500' : 'border-slate-600'
-              }`}
-              placeholder="Confirm your password"
-              disabled={loading || isSubmitting}
-              autoComplete="new-password"
-            />
-            <button
-              type="button"
-              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-300 disabled:opacity-50 transition-colors"
-              disabled={loading || isSubmitting}
-              aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
-            >
-              {showConfirmPassword ? '👁️' : '👁️‍🗨️'}
-            </button>
-          </div>
-          {formErrors.confirmPassword && (
-            <motion.p
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-red-400 text-sm mt-1"
-            >
-              {formErrors.confirmPassword}
-            </motion.p>
           )}
         </div>
 

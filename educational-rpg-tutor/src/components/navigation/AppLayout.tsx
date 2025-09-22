@@ -13,6 +13,7 @@ const navigationItems: NavigationItem[] = [
   { path: '/app/learning', label: 'Learning', icon: '📚' },
   { path: '/app/character', label: 'Character', icon: '🧙‍♂️' },
   { path: '/app/quests', label: 'Quests', icon: '⚔️' },
+  { path: '/app/game-modes', label: 'Game Modes', icon: '🎮' },
   { path: '/app/achievements', label: 'Achievements', icon: '🏆' },
   { path: '/app/inventory', label: 'Inventory', icon: '🎒' },
   { path: '/app/leaderboard', label: 'Leaderboard', icon: '👑' }

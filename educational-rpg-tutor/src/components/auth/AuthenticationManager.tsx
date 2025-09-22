@@ -53,8 +53,8 @@ export const AuthenticationManager: React.FC<AuthenticationManagerProps> = ({
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4">
+      <div className="w-full max-w-lg lg:max-w-xl">
         <AnimatePresence mode="wait">
           {currentView === 'login' && (
             <motion.div
