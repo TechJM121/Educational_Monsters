@@ -71,25 +71,25 @@ export const LandingPage: React.FC = () => {
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.8 }}
-        className="relative z-20 flex justify-between items-center p-6 backdrop-blur-sm bg-white/5 border-b border-white/10"
+        className="relative z-20 flex justify-between items-center p-4 sm:p-6 backdrop-blur-sm bg-white/5 border-b border-white/10"
       >
         <motion.div 
-          className="flex items-center gap-3"
+          className="flex items-center gap-2 sm:gap-3"
           whileHover={{ scale: 1.02 }}
         >
-          <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-cyan-400 rounded-xl flex items-center justify-center shadow-lg">
-            <span className="text-xl">🚀</span>
+          <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-blue-500 to-cyan-400 rounded-xl flex items-center justify-center shadow-lg">
+            <span className="text-lg sm:text-xl">🚀</span>
           </div>
           <div>
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">
+            <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">
               LearnCraft
             </h1>
-            <p className="text-xs text-slate-400">Adventure Awaits</p>
+            <p className="text-xs text-slate-400 hidden sm:block">Adventure Awaits</p>
           </div>
         </motion.div>
 
-        <div className="flex items-center gap-4">
-          <div className="hidden md:flex items-center gap-2 text-sm text-slate-300">
+        <div className="flex items-center gap-2 sm:gap-4">
+          <div className="hidden lg:flex items-center gap-2 text-sm text-slate-300">
             <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
             {currentTime.toLocaleTimeString()}
           </div>
@@ -97,16 +97,17 @@ export const LandingPage: React.FC = () => {
             whileHover={{ scale: 1.05, boxShadow: '0 10px 30px rgba(59, 130, 246, 0.3)' }}
             whileTap={{ scale: 0.95 }}
             onClick={() => navigate('/auth')}
-            className="px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-xl text-white font-semibold shadow-lg transition-all duration-300"
+            className="px-4 py-2 sm:px-6 sm:py-3 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-xl text-white font-semibold shadow-lg transition-all duration-300 text-sm sm:text-base"
           >
-            Begin Journey
+            <span className="hidden sm:inline">Begin Journey</span>
+            <span className="sm:hidden">Start</span>
           </motion.button>
         </div>
       </motion.nav>
 
       {/* Hero Section */}
       <motion.section 
-        className="relative z-10 min-h-screen flex items-center justify-center px-6"
+        className="relative z-10 min-h-screen flex items-center justify-center px-4 sm:px-6"
         style={{ y: heroY }}
       >
         <div className="max-w-6xl mx-auto text-center">
@@ -116,7 +117,7 @@ export const LandingPage: React.FC = () => {
             transition={{ duration: 1, ease: 'easeOut' }}
           >
             <motion.h1 
-              className="text-6xl md:text-8xl font-bold mb-8 leading-tight"
+              className="text-4xl sm:text-6xl md:text-8xl font-bold mb-6 sm:mb-8 leading-tight"
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 1.2, ease: 'easeOut' }}
@@ -138,7 +139,7 @@ export const LandingPage: React.FC = () => {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.3 }}
-              className="text-xl md:text-2xl text-slate-300 mb-12 max-w-4xl mx-auto leading-relaxed"
+              className="text-lg sm:text-xl md:text-2xl text-slate-300 mb-8 sm:mb-12 max-w-4xl mx-auto leading-relaxed px-4"
             >
               Embark on personalized learning quests, unlock achievements, and level up your knowledge 
               in an immersive educational universe designed just for you.
@@ -148,7 +149,7 @@ export const LandingPage: React.FC = () => {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.6 }}
-              className="flex flex-col sm:flex-row gap-6 justify-center mb-16"
+              className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center mb-12 sm:mb-16 px-4"
             >
               <motion.button
                 whileHover={{ 
@@ -157,9 +158,12 @@ export const LandingPage: React.FC = () => {
                 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => navigate('/auth')}
-                className="px-10 py-5 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-2xl text-white font-bold text-lg shadow-2xl transition-all duration-300 relative overflow-hidden group"
+                className="px-6 sm:px-10 py-4 sm:py-5 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-2xl text-white font-bold text-base sm:text-lg shadow-2xl transition-all duration-300 relative overflow-hidden group"
               >
-                <span className="relative z-10">Start Learning Quest</span>
+                <span className="relative z-10">
+                  <span className="hidden sm:inline">Start Learning Quest</span>
+                  <span className="sm:hidden">Start Quest</span>
+                </span>
                 <motion.div
                   className="absolute inset-0 bg-gradient-to-r from-cyan-600 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                 />
@@ -168,9 +172,10 @@ export const LandingPage: React.FC = () => {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="px-10 py-5 border-2 border-blue-500 rounded-2xl text-blue-400 font-bold text-lg hover:bg-blue-500/10 transition-all duration-300 backdrop-blur-sm"
+                className="px-6 sm:px-10 py-4 sm:py-5 border-2 border-blue-500 rounded-2xl text-blue-400 font-bold text-base sm:text-lg hover:bg-blue-500/10 transition-all duration-300 backdrop-blur-sm"
               >
-                Explore Features
+                <span className="hidden sm:inline">Explore Features</span>
+                <span className="sm:hidden">Explore</span>
               </motion.button>
             </motion.div>
           </motion.div>
@@ -180,7 +185,7 @@ export const LandingPage: React.FC = () => {
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, delay: 0.9 }}
-            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 max-w-5xl mx-auto"
+            className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 max-w-5xl mx-auto px-4"
           >
             {subjects.map((subject, index) => (
               <motion.div
@@ -193,19 +198,19 @@ export const LandingPage: React.FC = () => {
                   rotateY: 5,
                   boxShadow: '0 20px 40px rgba(0,0,0,0.3)'
                 }}
-                className="backdrop-blur-md bg-white/5 rounded-2xl p-6 border border-white/10 hover:border-blue-400/30 transition-all duration-300 cursor-pointer group"
+                className="backdrop-blur-md bg-white/5 rounded-2xl p-4 sm:p-6 border border-white/10 hover:border-blue-400/30 transition-all duration-300 cursor-pointer group"
               >
                 <motion.div
                   whileHover={{ rotate: 360, scale: 1.2 }}
                   transition={{ duration: 0.6 }}
-                  className={`w-12 h-12 bg-gradient-to-r ${subject.color} rounded-xl flex items-center justify-center text-2xl mb-4 mx-auto shadow-lg`}
+                  className={`w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r ${subject.color} rounded-xl flex items-center justify-center text-xl sm:text-2xl mb-3 sm:mb-4 mx-auto shadow-lg`}
                 >
                   {subject.icon}
                 </motion.div>
-                <h3 className="font-semibold text-white mb-2 group-hover:text-blue-300 transition-colors">
+                <h3 className="font-semibold text-white mb-1 sm:mb-2 group-hover:text-blue-300 transition-colors text-sm sm:text-base">
                   {subject.name}
                 </h3>
-                <p className="text-sm text-slate-400">
+                <p className="text-xs sm:text-sm text-slate-400">
                   {subject.students} students
                 </p>
               </motion.div>
@@ -215,24 +220,24 @@ export const LandingPage: React.FC = () => {
       </motion.section>
 
       {/* Features Section */}
-      <section className="relative z-10 py-20 px-6">
+      <section className="relative z-10 py-12 sm:py-20 px-4 sm:px-6">
         <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
-            className="text-center mb-16"
+            className="text-center mb-12 sm:mb-16"
           >
-            <h2 className="text-5xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent mb-6">
+            <h2 className="text-3xl sm:text-5xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent mb-4 sm:mb-6">
               Why Choose LearnCraft?
             </h2>
-            <p className="text-xl text-slate-300 max-w-3xl mx-auto">
+            <p className="text-lg sm:text-xl text-slate-300 max-w-3xl mx-auto px-4">
               Experience education reimagined with cutting-edge technology and gamification.
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
             {[
               {
                 icon: '🎯',
@@ -260,17 +265,17 @@ export const LandingPage: React.FC = () => {
                 transition={{ duration: 0.6, delay: index * 0.2 }}
                 viewport={{ once: true }}
                 whileHover={{ scale: 1.02, y: -5 }}
-                className="backdrop-blur-md bg-white/5 rounded-3xl p-8 border border-white/10 hover:border-blue-400/30 transition-all duration-300"
+                className="backdrop-blur-md bg-white/5 rounded-3xl p-6 sm:p-8 border border-white/10 hover:border-blue-400/30 transition-all duration-300"
               >
                 <motion.div
                   whileHover={{ rotate: 360, scale: 1.1 }}
                   transition={{ duration: 0.6 }}
-                  className={`w-16 h-16 bg-gradient-to-r ${feature.color} rounded-2xl flex items-center justify-center text-3xl mb-6 shadow-lg`}
+                  className={`w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r ${feature.color} rounded-2xl flex items-center justify-center text-2xl sm:text-3xl mb-4 sm:mb-6 shadow-lg`}
                 >
                   {feature.icon}
                 </motion.div>
-                <h3 className="text-2xl font-bold text-white mb-4">{feature.title}</h3>
-                <p className="text-slate-300 leading-relaxed">{feature.description}</p>
+                <h3 className="text-xl sm:text-2xl font-bold text-white mb-3 sm:mb-4">{feature.title}</h3>
+                <p className="text-slate-300 leading-relaxed text-sm sm:text-base">{feature.description}</p>
               </motion.div>
             ))}
           </div>
@@ -278,19 +283,19 @@ export const LandingPage: React.FC = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="relative z-10 py-20 px-6">
+      <section className="relative z-10 py-12 sm:py-20 px-4 sm:px-6">
         <div className="max-w-4xl mx-auto text-center">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
-            className="backdrop-blur-md bg-gradient-to-r from-blue-900/30 to-cyan-900/30 rounded-3xl p-12 border border-blue-500/20"
+            className="backdrop-blur-md bg-gradient-to-r from-blue-900/30 to-cyan-900/30 rounded-3xl p-6 sm:p-12 border border-blue-500/20"
           >
-            <h2 className="text-5xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent mb-6">
+            <h2 className="text-3xl sm:text-5xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent mb-4 sm:mb-6">
               Ready to Level Up?
             </h2>
-            <p className="text-xl text-slate-300 mb-8 max-w-2xl mx-auto">
+            <p className="text-lg sm:text-xl text-slate-300 mb-6 sm:mb-8 max-w-2xl mx-auto">
               Join thousands of learners who have transformed their education into an exciting adventure.
             </p>
             
@@ -301,26 +306,27 @@ export const LandingPage: React.FC = () => {
               }}
               whileTap={{ scale: 0.95 }}
               onClick={() => navigate('/auth')}
-              className="px-12 py-5 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-2xl text-white font-bold text-xl shadow-2xl transition-all duration-300"
+              className="px-8 sm:px-12 py-4 sm:py-5 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-2xl text-white font-bold text-lg sm:text-xl shadow-2xl transition-all duration-300"
             >
-              Begin Your Adventure
+              <span className="hidden sm:inline">Begin Your Adventure</span>
+              <span className="sm:hidden">Start Adventure</span>
             </motion.button>
           </motion.div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="relative z-10 py-12 px-6 border-t border-white/10 backdrop-blur-md bg-black/20">
+      <footer className="relative z-10 py-8 sm:py-12 px-4 sm:px-6 border-t border-white/10 backdrop-blur-md bg-black/20">
         <div className="max-w-7xl mx-auto text-center">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-cyan-400 rounded-xl flex items-center justify-center">
-              <span className="text-lg">🚀</span>
+          <div className="flex items-center justify-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+            <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-r from-blue-500 to-cyan-400 rounded-xl flex items-center justify-center">
+              <span className="text-sm sm:text-lg">🚀</span>
             </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">
+            <span className="text-lg sm:text-xl font-bold bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">
               LearnCraft
             </span>
           </div>
-          <p className="text-slate-400">
+          <p className="text-slate-400 text-sm sm:text-base">
             © 2025 LearnCraft. Crafting the future of education.
           </p>
         </div>

@@ -60,21 +60,21 @@ export function ModernCharacterCustomizationModal({
     const [statChanges, setStatChanges] = useState<StatChange[] | null>(null);
     const [equipmentChange, setEquipmentChange] = useState<EquipmentChange | null>(null);
     const prefersReducedMotion = useReducedMotion();
-    const { playSound } = useContextualSounds();
+    const { playContextualSound, navigationSounds } = useContextualSounds();
 
     const handleTabChange = (tab: CustomizationTab) => {
-        playSound('ui_tab_switch');
+        navigationSounds.tabSwitch();
         setActiveTab(tab);
     };
 
     const handleStatChange = (changes: StatChange[]) => {
         setStatChanges(changes);
-        playSound('stat_increase');
+        playContextualSound('stat_increase');
     };
 
     const handleEquipmentChange = (change: EquipmentChange) => {
         setEquipmentChange(change);
-        playSound(change.type === 'equipped' ? 'item_equip' : 'item_unequip');
+        playContextualSound(change.type === 'equipped' ? 'item_equip' : 'item_unequip');
     };
 
     const clearStatChanges = () => {
@@ -86,7 +86,7 @@ export function ModernCharacterCustomizationModal({
     };
 
     const handleClose = () => {
-        playSound('ui_cancel');
+        playContextualSound('ui_cancel');
         onClose();
     };
 

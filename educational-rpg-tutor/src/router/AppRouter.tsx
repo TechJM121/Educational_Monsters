@@ -32,9 +32,7 @@ export const AppRouter: React.FC = () => {
           {/* Auth page (public, no navigation) */}
           <Route path="/auth" element={
             <ProtectedRoute requiresAuth={false}>
-              <AppLayout showNavigation={false}>
-                <AuthPage />
-              </AppLayout>
+              <AuthPage />
             </ProtectedRoute>
           } />
 
@@ -42,50 +40,50 @@ export const AppRouter: React.FC = () => {
           <Route path="/app" element={<AppLayout />}>
             {/* Redirect app root to home */}
             <Route index element={<Navigate to="/app/home" replace />} />
-            
+
             {/* Main pages */}
             <Route path="home" element={
               <ProtectedRoute>
                 <HomePage />
               </ProtectedRoute>
             } />
-            
+
             <Route path="learning" element={
               <ProtectedRoute>
                 <LearningPage />
               </ProtectedRoute>
             } />
-            
+
             <Route path="character" element={
               <ProtectedRoute>
                 <CharacterPage />
               </ProtectedRoute>
             } />
-            
+
             <Route path="quests" element={
               <ProtectedRoute>
                 <QuestsPage />
               </ProtectedRoute>
             } />
-            
+
             <Route path="achievements" element={
               <ProtectedRoute>
                 <AchievementsPage />
               </ProtectedRoute>
             } />
-            
+
             <Route path="inventory" element={
               <ProtectedRoute>
                 <InventoryPage />
               </ProtectedRoute>
             } />
-            
+
             <Route path="leaderboard" element={
               <ProtectedRoute>
                 <LeaderboardPage />
               </ProtectedRoute>
             } />
-            
+
             <Route path="parent-dashboard" element={
               <ProtectedRoute>
                 <ParentDashboardPage />
@@ -101,7 +99,7 @@ export const AppRouter: React.FC = () => {
                 </div>
               </ProtectedRoute>
             } />
-            
+
             <Route path="learning/session" element={
               <ProtectedRoute>
                 <div className="min-h-screen p-6">
@@ -120,7 +118,7 @@ export const AppRouter: React.FC = () => {
                 </div>
               </ProtectedRoute>
             } />
-            
+
             <Route path="character/customization" element={
               <ProtectedRoute>
                 <div className="min-h-screen p-6">
