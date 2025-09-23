@@ -12,12 +12,15 @@ dist-ssr/
 build/
 *.local
 
-# Environment variables
+# Environment variables - NEVER commit these!
 .env
 .env.local
+.env.development
 .env.development.local
 .env.test.local
+.env.production
 .env.production.local
+.env.staging
 .env.*.local
 
 # Editor directories and files
@@ -194,6 +197,14 @@ Desktop.ini
 *.db
 *.sqlite
 *.sqlite3
+
+# SQL files with questions/answers (ignore large content files)
+comprehensive_questions_seed.sql
+seed_data_safe.sql
+fix_math_questions.sql
+*questions*.sql
+*seed*.sql
+*_data.sql
 
 # Certificate files
 *.pem

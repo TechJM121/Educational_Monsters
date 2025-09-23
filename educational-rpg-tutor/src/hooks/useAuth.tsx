@@ -53,7 +53,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         dispatch({ type: 'SET_LOADING', payload: true });
         
-        // Get current user profile
+        // Check for guest user first
+        const { GuestAuthService } = await import('../services/guestAuthService');
+        const guestUser = GuestAuthService.getCurrentGuestUser();
+        
+        if (guestUser && mounted) {
+          dispatch({ type: 'SET_USER', payload: { 
+            id: guestUser.id, 
+            email: guestUser.email, 
+            emailConfirmed: true 
+          }});
+          dispatch({ type: 'SET_PROFILE', payload: {
+            id: guestUser.id,
+            email: guestUser.email,
+            name: guestUser.name,
+            age: guestUser.age,
+            parentId: null,
+            parentalConsentGiven: true,
+            createdAt: guestUser.createdAt.toISOString(),
+            updatedAt: guestUser.createdAt.toISOString()
+          }});
+          dispatch({ type: 'SET_LOADING', payload: false });
+          return;
+        }
+        
+        // Get current user profile from Supabase
         const profile = await authService.getCurrentUserProfile();
         
         if (mounted) {
