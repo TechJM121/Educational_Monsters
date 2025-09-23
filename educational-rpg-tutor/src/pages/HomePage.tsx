@@ -37,10 +37,17 @@ export const HomePage: React.FC = () => {
       action: () => navigate('/app/learning')
     },
     {
+      title: 'AI Tutor',
+      description: 'Chat with your personal AI tutor',
+      icon: '🤖',
+      color: 'from-purple-500 to-pink-500',
+      action: () => navigate('/app/ai-tutor')
+    },
+    {
       title: 'Character',
       description: 'Customize your avatar',
       icon: '🧙‍♂️',
-      color: 'from-purple-500 to-pink-400',
+      color: 'from-indigo-500 to-purple-400',
       action: () => navigate('/app/character')
     },
     {

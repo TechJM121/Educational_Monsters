@@ -14,6 +14,7 @@ import { InventoryPage } from '../pages/InventoryPage';
 import { LeaderboardPage } from '../pages/LeaderboardPage';
 import { ParentDashboardPage } from '../pages/ParentDashboardPage';
 import { GameModesPage } from '../pages/GameModesPage';
+import { AITutorPage } from '../pages/AITutorPage';
 import { LandingPage } from '../components/landing/LandingPage';
 
 export const AppRouter: React.FC = () => {
@@ -91,6 +92,12 @@ export const AppRouter: React.FC = () => {
           <Route path="game-modes" element={
             <SimpleProtectedRoute>
               <GameModesPage />
+            </SimpleProtectedRoute>
+          } />
+
+          <Route path="ai-tutor" element={
+            <SimpleProtectedRoute>
+              <AITutorPage />
             </SimpleProtectedRoute>
           } />
         </Route>

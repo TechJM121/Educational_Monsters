@@ -11,6 +11,7 @@ interface NavigationItem {
 const navigationItems: NavigationItem[] = [
   { path: '/app/home', label: 'Home', icon: '🏰' },
   { path: '/app/learning', label: 'Learning', icon: '📚' },
+  { path: '/app/ai-tutor', label: 'AI Tutor', icon: '🤖' },
   { path: '/app/character', label: 'Character', icon: '🧙‍♂️' },
   { path: '/app/quests', label: 'Quests', icon: '⚔️' },
   { path: '/app/game-modes', label: 'Game Modes', icon: '🎮' },

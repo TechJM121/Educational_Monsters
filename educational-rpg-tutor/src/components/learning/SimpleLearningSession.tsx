@@ -327,12 +327,21 @@ export const SimpleLearningSession: React.FC<SimpleLearningSessionProps> = ({
             <h1 className="text-2xl font-bold text-white">
               {selectedSubject?.name || currentQuestion.subject} Adventure
             </h1>
-            <button
-              onClick={onBack || (() => window.location.href = '/app/learning')}
-              className="px-3 py-1 text-sm bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors"
-            >
-              ← Back to Subjects
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => window.location.href = '/app/ai-tutor'}
+                className="px-3 py-1 text-sm bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors flex items-center gap-1"
+                title="Get help from AI Tutor"
+              >
+                🤖 AI Help
+              </button>
+              <button
+                onClick={onBack || (() => window.location.href = '/app/learning')}
+                className="px-3 py-1 text-sm bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors"
+              >
+                ← Back to Subjects
+              </button>
+            </div>
           </div>
 
           {/* Progress Bar */}
