@@ -47,13 +47,13 @@ If you want persistent storage and the full database features:
 ### Step 1: Create Database Structure
 ```sql
 -- Run in Supabase SQL Editor
--- Copy and paste: complete_database_setup.sql
+-- Copy and paste: supabase/migrations/001_complete_database_setup.sql
 ```
 
 ### Step 2: Add Sample Data (Optional)
 ```sql
 -- Run in Supabase SQL Editor  
--- Copy and paste: seed_data_safe.sql
+-- Copy and paste: supabase/migrations/002_seed_data_safe.sql
 ```
 
 ### Step 3: Update Environment

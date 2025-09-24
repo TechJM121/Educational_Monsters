@@ -25,30 +25,12 @@ This directory contains the complete database schema, migrations, and seed data 
 
 Execute these SQL files **in the exact order listed** using the Supabase SQL editor:
 
-#### Core Schema (Required)
-1. **001_initial_schema.sql** - Creates all core database tables and indexes
-2. **002_rls_policies.sql** - Sets up Row Level Security policies for data protection
-3. **003_xp_functions.sql** - Creates XP calculation and character progression functions
-4. **004_achievement_functions.sql** - Achievement system and badge logic
-5. **005_worlds_and_quests.sql** - Game world structure and quest system
-6. **006_learning_sessions.sql** - Learning session tracking and analytics
+#### Core Database Setup (Required)
+1. **migrations/001_complete_database_setup.sql** - Complete database schema with all tables, functions, and RLS policies
+2. **migrations/002_seed_data_safe.sql** - Sample data including subjects, questions, achievements, and inventory items
 
-#### Enhanced Features (Recommended)
-7. **007_enhanced_progression.sql** - Advanced progression tracking and learning paths
-8. **008_question_management.sql** - Adaptive question system and difficulty management
-
-#### Comprehensive Mathematics Content
-9. **009_comprehensive_math_questions.sql** - Core mathematics questions (80+ questions)
-10. **010_additional_math_questions.sql** - Practical math applications (50+ questions)
-11. **011_math_hints_explanations.sql** - Hints and explanations system
-12. **012_advanced_math_topics.sql** - Advanced concepts and calculus (60+ questions)
-13. **013_practical_math_applications.sql** - Real-world problem solving (60+ questions)
-14. **014_geometry_and_measurement.sql** - Shapes, space, and measurement (60+ questions)
-15. **015_number_theory_and_patterns.sql** - Patterns, sequences, and logic (60+ questions)
-
-#### Sample Data
-16. **seed.sql** - Basic sample data (subjects, questions, achievements, items)
-17. **enhanced_seed.sql** - Extended sample data with learning paths and question pools
+#### Database Utilities
+- **check_database_status.sql** - Utility script to verify database setup and check table contents
 
 ### 4. Verify Setup
 
