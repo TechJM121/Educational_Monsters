@@ -14,6 +14,8 @@ interface SimpleAuthContextType {
   error: string | null;
   signOut: () => void;
   clearError: () => void;
+  refreshAuth: () => void;
+  setUser: (user: SimpleUser | null) => void;
 }
 
 const SimpleAuthContext = createContext<SimpleAuthContextType | undefined>(undefined);
@@ -30,19 +32,37 @@ export function SimpleAuthProvider({ children }: { children: ReactNode }) {
         const session = localStorage.getItem('educational_rpg_session');
         const userData = localStorage.getItem('educational_rpg_user');
         
+        // console.log('Auth initialization - Session:', session, 'UserData:', userData);
+        
         if (session === 'active' && userData) {
           const parsedUser = JSON.parse(userData);
+          // console.log('Setting user:', parsedUser);
           setUser(parsedUser);
+        } else {
+          // console.log('No valid session found');
+          setUser(null);
         }
       } catch (error) {
         console.error('Auth initialization error:', error);
         setError('Failed to initialize authentication');
+        setUser(null);
       } finally {
         setLoading(false);
       }
     };
 
     initAuth();
+
+    // Listen for storage changes (useful for multiple tabs)
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'educational_rpg_session' || e.key === 'educational_rpg_user') {
+        // console.log('Storage changed, refreshing auth state');
+        initAuth();
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
   const signOut = () => {
@@ -57,12 +77,31 @@ export function SimpleAuthProvider({ children }: { children: ReactNode }) {
     setError(null);
   };
 
+  const refreshAuth = () => {
+    try {
+      const session = localStorage.getItem('educational_rpg_session');
+      const userData = localStorage.getItem('educational_rpg_user');
+      
+      if (session === 'active' && userData) {
+        const parsedUser = JSON.parse(userData);
+        setUser(parsedUser);
+      } else {
+        setUser(null);
+      }
+    } catch (error) {
+      console.error('Auth refresh error:', error);
+      setUser(null);
+    }
+  };
+
   const value: SimpleAuthContextType = {
     user,
     loading,
     error,
     signOut,
-    clearError
+    clearError,
+    refreshAuth,
+    setUser
   };
 
   return (

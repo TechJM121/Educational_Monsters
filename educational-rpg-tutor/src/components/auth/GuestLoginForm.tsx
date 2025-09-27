@@ -60,11 +60,18 @@ export const GuestLoginForm: React.FC<GuestLoginFormProps> = ({
     setIsSubmitting(true);
     
     try {
-      // Create guest user
-      const guestUser = GuestAuthService.createGuestUser(
-        formData.name.trim(),
-        parseInt(formData.age)
-      );
+      // Create guest user with consistent localStorage keys
+      const guestUser = {
+        id: `guest_${Date.now()}`,
+        name: formData.name.trim(),
+        age: parseInt(formData.age),
+        email: `guest_${Date.now()}@example.com`,
+        isGuest: true
+      };
+
+      // Store in localStorage with consistent keys
+      localStorage.setItem('educational_rpg_user', JSON.stringify(guestUser));
+      localStorage.setItem('educational_rpg_session', 'active');
 
       console.log('Guest user created:', guestUser);
       

@@ -29,6 +29,256 @@ export const isSupabaseConfigured = finalUrl !== defaultUrl && finalKey !== defa
 export interface Database {
   public: {
     Tables: {
+      subjects: {
+        Row: {
+          id: string;
+          name: string;
+          description: string | null;
+          primary_stat: string;
+          secondary_stat: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          description?: string | null;
+          primary_stat: string;
+          secondary_stat?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          description?: string | null;
+          primary_stat?: string;
+          secondary_stat?: string | null;
+          created_at?: string;
+        };
+      };
+      questions: {
+        Row: {
+          id: string;
+          subject_id: string;
+          question_text: string;
+          answer_options: string[];
+          correct_answer: string;
+          difficulty_level: number;
+          xp_reward: number;
+          age_range: string;
+          hint: string | null;
+          explanation: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          subject_id: string;
+          question_text: string;
+          answer_options: string[];
+          correct_answer: string;
+          difficulty_level: number;
+          xp_reward: number;
+          age_range: string;
+          hint?: string | null;
+          explanation?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          subject_id?: string;
+          question_text?: string;
+          answer_options?: string[];
+          correct_answer?: string;
+          difficulty_level?: number;
+          xp_reward?: number;
+          age_range?: string;
+          hint?: string | null;
+          explanation?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      question_responses: {
+        Row: {
+          id: string;
+          user_id: string;
+          question_id: string;
+          selected_answer: string;
+          is_correct: boolean;
+          xp_earned: number;
+          response_time_seconds: number | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          question_id: string;
+          selected_answer: string;
+          is_correct: boolean;
+          xp_earned?: number;
+          response_time_seconds?: number | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          question_id?: string;
+          selected_answer?: string;
+          is_correct?: boolean;
+          xp_earned?: number;
+          response_time_seconds?: number | null;
+          created_at?: string;
+        };
+      };
+      user_progress: {
+        Row: {
+          id: string;
+          user_id: string;
+          subject_id: string;
+          questions_answered: number;
+          questions_correct: number;
+          total_xp_earned: number;
+          current_streak: number;
+          best_streak: number;
+          last_activity: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          subject_id: string;
+          questions_answered?: number;
+          questions_correct?: number;
+          total_xp_earned?: number;
+          current_streak?: number;
+          best_streak?: number;
+          last_activity?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          subject_id?: string;
+          questions_answered?: number;
+          questions_correct?: number;
+          total_xp_earned?: number;
+          current_streak?: number;
+          best_streak?: number;
+          last_activity?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      achievements: {
+        Row: {
+          id: string;
+          name: string;
+          description: string;
+          badge_icon: string;
+          unlock_criteria: any;
+          rarity_level: number;
+          category: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          description: string;
+          badge_icon: string;
+          unlock_criteria: any;
+          rarity_level: number;
+          category: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          description?: string;
+          badge_icon?: string;
+          unlock_criteria?: any;
+          rarity_level?: number;
+          category?: string;
+          created_at?: string;
+        };
+      };
+      user_achievements: {
+        Row: {
+          id: string;
+          user_id: string;
+          achievement_id: string;
+          unlocked_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          achievement_id: string;
+          unlocked_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          achievement_id?: string;
+          unlocked_at?: string;
+        };
+      };
+      inventory_items: {
+        Row: {
+          id: string;
+          name: string;
+          description: string | null;
+          item_type: string;
+          rarity_level: number;
+          icon_url: string | null;
+          stat_bonuses: any;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          description?: string | null;
+          item_type: string;
+          rarity_level: number;
+          icon_url?: string | null;
+          stat_bonuses?: any;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          description?: string | null;
+          item_type?: string;
+          rarity_level?: number;
+          icon_url?: string | null;
+          stat_bonuses?: any;
+          created_at?: string;
+        };
+      };
+      user_inventory: {
+        Row: {
+          id: string;
+          user_id: string;
+          item_id: string;
+          quantity: number;
+          acquired_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          item_id: string;
+          quantity?: number;
+          acquired_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          item_id?: string;
+          quantity?: number;
+          acquired_at?: string;
+        };
+      };
       users: {
         Row: {
           id: string;

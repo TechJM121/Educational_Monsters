@@ -9,9 +9,14 @@ export interface Question {
   difficulty_level: number;
   xp_reward: number;
   age_range: string;
-  created_at: Date;
+  created_at?: Date | string;
+  updated_at?: Date | string;
+  hint?: string;
+  explanation?: string;
   subjects?: {
+    id?: string;
     name: string;
+    description?: string;
     primary_stat: string;
     secondary_stat: string;
   };
@@ -25,7 +30,7 @@ export interface QuestionResponse {
   is_correct: boolean;
   xp_earned: number;
   response_time_seconds?: number;
-  created_at: Date;
+  created_at: Date | string;
 }
 
 export interface Subject {

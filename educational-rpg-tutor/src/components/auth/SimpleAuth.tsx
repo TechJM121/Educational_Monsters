@@ -1,9 +1,13 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+// import { AuthDebug } from '../debug/AuthDebug';
+// import { GuestLoginTest } from '../debug/GuestLoginTest';
+import { useSimpleAuth } from '../../hooks/useSimpleAuth';
 
 export const SimpleAuth: React.FC = () => {
   const navigate = useNavigate();
+  const { refreshAuth, setUser } = useSimpleAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [authMode, setAuthMode] = useState<'welcome' | 'guest' | 'login' | 'signup'>('welcome');
   const [formData, setFormData] = useState({
@@ -16,23 +20,53 @@ export const SimpleAuth: React.FC = () => {
 
   const handleGuestLogin = async () => {
     setIsLoading(true);
+    setError('');
+    
     try {
+      // Validate form data
+      if (!formData.name.trim()) {
+        setError('Please enter your name');
+        setIsLoading(false);
+        return;
+      }
+      
+      const age = parseInt(formData.age);
+      if (!age || age < 3 || age > 18) {
+        setError('Please enter a valid age (3-18)');
+        setIsLoading(false);
+        return;
+      }
+
       // Create guest user
       const guestUser = {
-        id: `guest_${Date.now()}`,
-        name: formData.name || 'Guest User',
-        age: parseInt(formData.age) || 10,
+        id: `guest_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        name: formData.name.trim(),
+        age: age,
         email: `guest_${Date.now()}@example.com`,
         isGuest: true
       };
 
-      // Store in localStorage
+      console.log('Creating guest user:', guestUser);
+
+      // Clear any existing auth data first
+      localStorage.removeItem('educational_rpg_user');
+      localStorage.removeItem('educational_rpg_session');
+
+      // Store in localStorage with consistent keys
       localStorage.setItem('educational_rpg_user', JSON.stringify(guestUser));
       localStorage.setItem('educational_rpg_session', 'active');
 
-      // Navigate to app
-      navigate('/app/home');
+      console.log('Guest user stored in localStorage');
+
+      // Immediately update the auth context
+      setUser(guestUser);
+
+      console.log('Auth context updated, navigating to home...');
+
+      // Use window.location for a hard navigation to ensure clean state
+      window.location.href = '/app/home';
     } catch (error) {
+      console.error('Guest login error:', error);
       setError('Failed to create guest session');
       setIsLoading(false);
     }
@@ -68,6 +102,8 @@ export const SimpleAuth: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
+      {/* <AuthDebug />
+      <GuestLoginTest /> */}
       <div className="w-full max-w-md">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
