@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { hybridQuestionService, type QuestionFilters } from '../services/hybridQuestionService';
 import type { Question, Subject, QuestionResponse } from '../types/question';
+import { mapUserAgeToQuestionRange } from '../utils/ageMapping';
 
 export interface UseQuestionsOptions {
   ageRange?: string;
@@ -246,6 +247,25 @@ export function useAdaptiveQuestions(userId: string, ageRange: string, subjectId
   return useQuestions({
     userId,
     ageRange,
+    subjectId,
+    autoLoad: true
+  });
+}
+
+export function useQuestionsForUserAge(userAge: number, limit?: number) {
+  const mappedAgeRange = mapUserAgeToQuestionRange(userAge);
+  return useQuestions({
+    ageRange: mappedAgeRange,
+    limit,
+    autoLoad: true
+  });
+}
+
+export function useAdaptiveQuestionsForUserAge(userId: string, userAge: number, subjectId?: string) {
+  const mappedAgeRange = mapUserAgeToQuestionRange(userAge);
+  return useQuestions({
+    userId,
+    ageRange: mappedAgeRange,
     subjectId,
     autoLoad: true
   });

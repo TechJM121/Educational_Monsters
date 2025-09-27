@@ -31,8 +31,8 @@ export const SimpleAuth: React.FC = () => {
       }
       
       const age = parseInt(formData.age);
-      if (!age || age < 3 || age > 18) {
-        setError('Please enter a valid age (3-18)');
+      if (!age || age < 3) {
+        setError('Please enter a valid age (3 or above)');
         setIsLoading(false);
         return;
       }
@@ -84,8 +84,8 @@ export const SimpleAuth: React.FC = () => {
       return false;
     }
     const age = parseInt(formData.age);
-    if (!age || age < 3 || age > 18) {
-      setError('Please enter a valid age (3-18)');
+    if (!age || age < 3) {
+      setError('Please enter a valid age (3 or above)');
       return false;
     }
     return true;
@@ -102,8 +102,6 @@ export const SimpleAuth: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
-      {/* <AuthDebug />
-      <GuestLoginTest /> */}
       <div className="w-full max-w-md">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -187,7 +185,7 @@ export const SimpleAuth: React.FC = () => {
                   type="number"
                   name="age"
                   min="3"
-                  max="18"
+                  max="999"
                   value={formData.age}
                   onChange={handleInputChange}
                   className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"

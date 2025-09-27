@@ -34,8 +34,8 @@ export const GuestLoginForm: React.FC<GuestLoginFormProps> = ({
     const age = parseInt(formData.age);
     if (!formData.age) {
       errors.age = 'Age is required';
-    } else if (isNaN(age) || age < 3 || age > 18) {
-      errors.age = 'Age must be between 3 and 18 years old';
+    } else if (isNaN(age) || age < 3) {
+      errors.age = 'Age must be 3 or above';
     }
 
     setFormErrors(errors);
@@ -130,7 +130,7 @@ export const GuestLoginForm: React.FC<GuestLoginFormProps> = ({
             id="age"
             name="age"
             min="3"
-            max="18"
+            max="999"
             value={formData.age}
             onChange={handleInputChange}
             className={`w-full px-4 py-3 bg-slate-700 border rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors ${

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useSimpleAuth } from '../../hooks/useSimpleAuth';
+import { useQuestionsForUserAge } from '../../hooks/useQuestions';
+import { mapUserAgeToQuestionRange } from '../../utils/ageMapping';
 
 interface SimpleQuestion {
   id: string;
@@ -184,38 +186,78 @@ export const SimpleLearningSession: React.FC<SimpleLearningSessionProps> = ({
   });
   const [questions, setQuestions] = useState<SimpleQuestion[]>([]);
 
+  // Get age-appropriate questions using the hook
+  const userAge = user?.age || 10;
+  const { questions: ageAppropriateQuestions, loading: questionsLoading } = useQuestionsForUserAge(userAge, 10);
+
   // Initialize questions based on user age and selected subject
   useEffect(() => {
-    if (user) {
-      // Filter questions based on selected subject
+    if (user && ageAppropriateQuestions.length > 0) {
+      // Convert questions from the hook format to SimpleQuestion format
+      const convertedQuestions: SimpleQuestion[] = ageAppropriateQuestions.map(q => ({
+        id: q.id,
+        question: q.question_text,
+        options: q.answer_options,
+        correct: q.correct_answer,
+        subject: q.subjects?.name || 'General',
+        difficulty: q.difficulty_level,
+        xp: q.xp_reward,
+        hint: q.hint,
+        explanation: q.explanation
+      }));
+
+      // Filter by selected subject if specified
+      let filteredQuestions = convertedQuestions;
+      if (selectedSubject && selectedSubject.id !== 'mixed') {
+        filteredQuestions = convertedQuestions.filter(q => 
+          q.subject.toLowerCase().includes(selectedSubject.name.toLowerCase()) ||
+          selectedSubject.name.toLowerCase().includes(q.subject.toLowerCase())
+        );
+      }
+
+      // Fallback to sample questions if no age-appropriate questions found
+      if (filteredQuestions.length === 0) {
+        console.log('No age-appropriate questions found, using sample questions');
+        filteredQuestions = SAMPLE_QUESTIONS.filter(q => {
+          if (selectedSubject && selectedSubject.id !== 'mixed') {
+            return q.subject.toLowerCase().includes(selectedSubject.name.toLowerCase());
+          }
+          return true;
+        });
+      }
+
+      // Shuffle and limit questions
+      const shuffledQuestions = filteredQuestions.sort(() => Math.random() - 0.5).slice(0, 5);
+      setQuestions(shuffledQuestions);
+      
+      console.log(`Loaded ${shuffledQuestions.length} questions for age ${userAge} (range: ${mapUserAgeToQuestionRange(userAge)})`);
+    } else if (user && !questionsLoading) {
+      // Fallback to sample questions if no questions loaded
       let filteredQuestions = SAMPLE_QUESTIONS;
       
       if (selectedSubject && selectedSubject.id !== 'mixed') {
-        // Filter by subject
         filteredQuestions = SAMPLE_QUESTIONS.filter(q => 
-          q.subject.toLowerCase().includes(selectedSubject.id.replace('-', ' '))
+          q.subject.toLowerCase().includes(selectedSubject.name.toLowerCase())
         );
       }
       
-      // Filter by age/difficulty
-      if (user.age <= 6) {
-        // Younger kids get easier questions
+      // Filter by age/difficulty for sample questions
+      if (userAge <= 6) {
         filteredQuestions = filteredQuestions.filter(q => q.difficulty === 1);
-      } else if (user.age <= 10) {
-        // Elementary age gets mix of easy and medium
+      } else if (userAge <= 10) {
         filteredQuestions = filteredQuestions.filter(q => q.difficulty <= 2);
       }
       
-      // If no questions match the subject, fall back to math
+      // If no questions match, fall back to all sample questions
       if (filteredQuestions.length === 0) {
-        filteredQuestions = SAMPLE_QUESTIONS.filter(q => q.subject === 'Mathematics');
+        filteredQuestions = SAMPLE_QUESTIONS;
       }
       
       // Shuffle questions
       const shuffled = [...filteredQuestions].sort(() => Math.random() - 0.5);
       setQuestions(shuffled.slice(0, 5)); // Take first 5 questions
     }
-  }, [user, selectedSubject]);
+  }, [user, selectedSubject, ageAppropriateQuestions, questionsLoading, userAge]);
 
   const currentQuestion = questions[currentQuestionIndex];
 
@@ -291,12 +333,15 @@ export const SimpleLearningSession: React.FC<SimpleLearningSessionProps> = ({
     );
   }
 
-  if (questions.length === 0) {
+  if (questions.length === 0 || questionsLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-green-950 to-slate-950 flex items-center justify-center">
         <div className="text-center text-white">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
-          <p>Loading questions...</p>
+          <p>Loading age-appropriate questions...</p>
+          <p className="text-sm text-slate-400 mt-2">
+            Age: {userAge} | Range: {mapUserAgeToQuestionRange(userAge)}
+          </p>
         </div>
       </div>
     );
