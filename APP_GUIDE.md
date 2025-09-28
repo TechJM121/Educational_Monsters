@@ -93,6 +93,7 @@ All pages are accessible through the sidebar navigation:
 
 ### Step 1: Start the App
 ```bash
+cd educational-rpg-tutor
 npm run dev
 ```
 

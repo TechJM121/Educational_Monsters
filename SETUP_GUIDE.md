@@ -47,13 +47,13 @@ If you want persistent storage and the full database features:
 ### Step 1: Create Database Structure
 ```sql
 -- Run in Supabase SQL Editor
--- Copy and paste: supabase/migrations/001_complete_database_setup.sql
+-- Copy and paste: educational-rpg-tutor/supabase/migrations/001_complete_database_setup.sql
 ```
 
 ### Step 2: Add Sample Data (Optional)
 ```sql
 -- Run in Supabase SQL Editor  
--- Copy and paste: supabase/migrations/002_seed_data_safe.sql
+-- Copy and paste: educational-rpg-tutor/supabase/migrations/002_seed_data_safe.sql
 ```
 
 ### Step 3: Update Environment
@@ -123,10 +123,10 @@ educational-rpg-tutor/
 ## 🔧 **Customization**
 
 ### Add More Questions:
-Edit `src/components/learning/SimpleLearningSession.tsx` and add to the `SAMPLE_QUESTIONS` array.
+Edit `educational-rpg-tutor/src/components/learning/SimpleLearningSession.tsx` and add to the `SAMPLE_QUESTIONS` array.
 
 ### Add New Subjects:
-Edit `src/components/learning/SubjectSelection.tsx` and add to the `subjects` array.
+Edit `educational-rpg-tutor/src/components/learning/SubjectSelection.tsx` and add to the `subjects` array.
 
 ### Modify XP System:
 Edit the XP calculation in the learning session component.
@@ -135,6 +135,7 @@ Edit the XP calculation in the learning session component.
 
 ### App Won't Start:
 ```bash
+cd educational-rpg-tutor
 npm install
 npm run dev
 ```

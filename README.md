@@ -182,9 +182,9 @@ npm run preview
 
 ## 📚 **Documentation**
 
-- [🎯 Final Setup Guide](./FINAL_SETUP_GUIDE.md) - Complete setup instructions
-- [📖 Complete App Guide](./COMPLETE_APP_GUIDE.md) - Full feature overview
-- [🔧 Setup Instructions](./SETUP_INSTRUCTIONS_FIXED.md) - Database setup (optional)
+- [🎯 Setup Guide](./SETUP_GUIDE.md) - Complete setup instructions
+- [📖 Complete App Guide](./APP_GUIDE.md) - Full feature overview
+- [🗄️ Database Setup](./DATABASE_SETUP.md) - Database setup (optional)
 
 ## 🎮 **What You Get**
 
@@ -198,7 +198,7 @@ npm run preview
 
 ## 🤝 Contributing
 
-We welcome contributions! Please see our [Contributing Guide](./CONTRIBUTING.md) for details.
+We welcome contributions! Please see our [Contributing Guide](./educational-rpg-tutor/CONTRIBUTING.md) for details.
 
 ### Development Workflow
 
@@ -212,7 +212,7 @@ We welcome contributions! Please see our [Contributing Guide](./CONTRIBUTING.md)
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](./educational-rpg-tutor/LICENSE) file for details.
 
 ## 🙏 Acknowledgments
 

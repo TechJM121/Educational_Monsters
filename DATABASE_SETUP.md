@@ -15,13 +15,13 @@ The hybrid question system requires the Supabase database to be properly set up 
 ### Step 1: Create Tables and Functions
 Copy and run the entire contents of:
 ```
-supabase/migrations/001_complete_database_setup.sql
+educational-rpg-tutor/supabase/migrations/001_complete_database_setup.sql
 ```
 
 ### Step 2: Add Sample Data
 Copy and run the entire contents of:
 ```
-supabase/migrations/002_seed_data_safe.sql
+educational-rpg-tutor/supabase/migrations/002_seed_data_safe.sql
 ```
 
 ## Verification
