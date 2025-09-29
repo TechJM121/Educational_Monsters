@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { ResponsiveContainer, ResponsiveGrid, ResponsiveText, ResponsiveCard } from '../components/shared/ResponsiveContainer';
 import { useResponsive } from '../hooks/useResponsive';
+import { ComingSoonFeatures } from '../components/home/ComingSoonFeatures';
 
 export const HomePage: React.FC = () => {
   const navigate = useNavigate();
@@ -226,11 +227,20 @@ export const HomePage: React.FC = () => {
           </ResponsiveGrid>
         </motion.div>
 
-        {/* Guest Mode Notice */}
+        {/* Coming Soon Features */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.8 }}
+        >
+          <ComingSoonFeatures />
+        </motion.div>
+
+        {/* Guest Mode Notice */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 1.0 }}
         >
           <ResponsiveCard padding="md" className="bg-yellow-900/20 border-yellow-600/30">
             <div className="flex items-start gap-3 lg:gap-4">

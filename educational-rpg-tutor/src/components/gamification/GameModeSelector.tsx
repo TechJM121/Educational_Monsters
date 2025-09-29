@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { gameModeService } from '../../services/gameModeService';
 import type { GameMode } from '../../types/gameMode';
-import { useAuth } from '../../hooks/useAuth';
-import { useNotifications } from '../../contexts/NotificationContext';
+import { useSimpleAuth } from '../../hooks/useSimpleAuth';
 
 interface GameModeSelectorProps {
   onGameModeSelect: (gameMode: GameMode) => void;
@@ -18,8 +17,7 @@ export const GameModeSelector: React.FC<GameModeSelectorProps> = ({
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<'all' | 'daily' | 'weekly' | 'special_event'>('all');
   const [selectedDifficulty, setSelectedDifficulty] = useState<'all' | 1 | 2 | 3 | 4 | 5>('all');
-  const { user } = useAuth();
-  const { addNotification } = useNotifications();
+  const { user } = useSimpleAuth();
 
   useEffect(() => {
     loadGameModes();
@@ -34,11 +32,7 @@ export const GameModeSelector: React.FC<GameModeSelectorProps> = ({
       setGameModes(modes);
     } catch (error) {
       console.error('Error loading game modes:', error);
-      addNotification({
-        type: 'error',
-        title: 'Error',
-        message: 'Failed to load game modes'
-      });
+      // TODO: Add proper error notification system
     } finally {
       setLoading(false);
     }

@@ -17,6 +17,17 @@ import { GameModesPage } from '../pages/GameModesPage';
 import { AITutorPage } from '../pages/AITutorPage';
 import { LandingPage } from '../components/landing/LandingPage';
 
+// Coming Soon Pages
+import { SocialHubPage } from '../pages/SocialHubPage';
+import { MultiplayerPage } from '../pages/MultiplayerPage';
+import { VRLearningPage } from '../pages/VRLearningPage';
+import { TeacherPortalPage } from '../pages/TeacherPortalPage';
+import { AdvancedAnalyticsPage } from '../pages/AdvancedAnalyticsPage';
+import { MobileAppPage } from '../pages/MobileAppPage';
+import { AIPersonalizationPage } from '../pages/AIPersonalizationPage';
+import { PremiumFeaturesPage } from '../pages/PremiumFeaturesPage';
+import { ComingSoonShowcasePage } from '../pages/ComingSoonShowcasePage';
+
 export const AppRouter: React.FC = () => {
   return (
     <BrowserRouter>
@@ -98,6 +109,61 @@ export const AppRouter: React.FC = () => {
           <Route path="ai-tutor" element={
             <SimpleProtectedRoute>
               <AITutorPage />
+            </SimpleProtectedRoute>
+          } />
+
+          {/* Coming Soon Features */}
+          <Route path="social-hub" element={
+            <SimpleProtectedRoute>
+              <SocialHubPage />
+            </SimpleProtectedRoute>
+          } />
+
+          <Route path="multiplayer" element={
+            <SimpleProtectedRoute>
+              <MultiplayerPage />
+            </SimpleProtectedRoute>
+          } />
+
+          <Route path="vr-learning" element={
+            <SimpleProtectedRoute>
+              <VRLearningPage />
+            </SimpleProtectedRoute>
+          } />
+
+          <Route path="teacher-portal" element={
+            <SimpleProtectedRoute>
+              <TeacherPortalPage />
+            </SimpleProtectedRoute>
+          } />
+
+          <Route path="advanced-analytics" element={
+            <SimpleProtectedRoute>
+              <AdvancedAnalyticsPage />
+            </SimpleProtectedRoute>
+          } />
+
+          <Route path="mobile-app" element={
+            <SimpleProtectedRoute>
+              <MobileAppPage />
+            </SimpleProtectedRoute>
+          } />
+
+          <Route path="ai-personalization" element={
+            <SimpleProtectedRoute>
+              <AIPersonalizationPage />
+            </SimpleProtectedRoute>
+          } />
+
+          <Route path="premium-features" element={
+            <SimpleProtectedRoute>
+              <PremiumFeaturesPage />
+            </SimpleProtectedRoute>
+          } />
+
+          <Route path="coming-soon" element={
+            <SimpleProtectedRoute>
+              <ComingSoonShowcasePage />
             </SimpleProtectedRoute>
           } />
         </Route>

@@ -20,6 +20,12 @@ const navigationItems: NavigationItem[] = [
   { path: '/app/leaderboard', label: 'Leaderboard', icon: '👑' }
 ];
 
+const comingSoonItems: NavigationItem[] = [
+  { path: '/app/teacher-portal', label: 'Teacher Portal', icon: '👩‍🏫' },
+  { path: '/app/social-hub', label: 'Social Hub', icon: '👥' },
+  { path: '/app/multiplayer', label: 'Multiplayer', icon: '⚔️' }
+];
+
 interface AppLayoutProps {
   showNavigation?: boolean;
 }
@@ -84,7 +90,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
             </div>
 
             {/* Navigation Items */}
-            <nav className="flex-1 p-4">
+            <nav className="flex-1 p-4 overflow-y-auto">
               <div className="space-y-2">
                 {navigationItems.map((item, index) => {
                   const isActive = location.pathname === item.path;
@@ -119,6 +125,52 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
                     </motion.button>
                   );
                 })}
+              </div>
+
+              {/* Coming Soon Section */}
+              <div className="mt-6 pt-4 border-t border-slate-700">
+                <div className="flex items-center gap-2 mb-3 px-2">
+                  <span className="text-yellow-400 text-sm">🚀</span>
+                  <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">Coming Soon</span>
+                </div>
+                <div className="space-y-1">
+                  {comingSoonItems.map((item, index) => {
+                    const isActive = location.pathname === item.path;
+                    return (
+                      <motion.button
+                        key={item.path}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.3, delay: (navigationItems.length + index) * 0.1 }}
+                        whileHover={{ scale: 1.02, x: 5 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => {
+                          navigate(item.path);
+                          if (!isLargeScreen) {
+                            setIsMenuOpen(false);
+                          }
+                        }}
+                        className={`w-full flex items-center gap-3 sm:gap-4 px-3 sm:px-4 py-2.5 rounded-lg transition-all duration-300 text-left relative ${
+                          isActive
+                            ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg'
+                            : 'text-slate-400 hover:bg-slate-800/30 hover:text-slate-300'
+                        }`}
+                      >
+                        <span className="text-lg sm:text-xl opacity-70">{item.icon}</span>
+                        <span className="font-medium text-xs sm:text-sm">{item.label}</span>
+                        <span className="ml-auto text-xs bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded-full">
+                          Soon
+                        </span>
+                        {isActive && (
+                          <motion.div
+                            layoutId="activeComingSoonIndicator"
+                            className="absolute right-2 w-1.5 h-1.5 bg-white rounded-full"
+                          />
+                        )}
+                      </motion.button>
+                    );
+                  })}
+                </div>
               </div>
             </nav>
 
