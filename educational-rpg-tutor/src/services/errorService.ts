@@ -1,4 +1,4 @@
-import { AppError, ToastNotification } from '../types/error';
+import type { AppError, ToastNotification } from '../types/error';
 import { supabase } from './supabaseClient';
 
 class ErrorService {

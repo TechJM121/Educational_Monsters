@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { DeviceCapability } from '../types/animation';
+import type { DeviceCapability } from '../types/animation';
 import { detectDeviceCapability } from '../utils/deviceCapability';
 
 export const useDeviceCapability = (): DeviceCapability => {

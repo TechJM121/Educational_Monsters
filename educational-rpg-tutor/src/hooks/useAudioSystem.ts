@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { AudioContextState, AudioPreferences, PlaySoundOptions, AudioLoadingState } from '../types/audio';
+import type { AudioContextState, AudioPreferences, PlaySoundOptions, AudioLoadingState } from '../types/audio';
 import AudioContextManager from '../utils/audioContext';
 import SoundLibraryManager from '../utils/soundLibrary';
 

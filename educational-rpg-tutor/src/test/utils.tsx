@@ -1,9 +1,9 @@
 import React from 'react';
 import { render, RenderOptions } from '@testing-library/react';
 import { vi } from 'vitest';
-import { Character, CharacterStats } from '../types/character';
-import { Question } from '../types/question';
-import { Achievement } from '../types/achievement';
+import type { Character, CharacterStats } from '../types/character';
+import type { Question } from '../types/question';
+import type { Achievement } from '../types/achievement';
 
 // Mock data factories
 export const createMockCharacter = (overrides: Partial<Character> = {}): Character => ({

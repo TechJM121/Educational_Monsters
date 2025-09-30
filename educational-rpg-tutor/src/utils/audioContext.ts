@@ -1,4 +1,4 @@
-import { AudioContextState } from '../types/audio';
+import type { AudioContextState } from '../types/audio';
 
 class AudioContextManager {
   private static instance: AudioContextManager;

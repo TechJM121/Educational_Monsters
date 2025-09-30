@@ -1,4 +1,4 @@
-import { SoundEffect, SoundCategory, RPGSoundLibrary, AudioLoadingState } from '../types/audio';
+import type { SoundEffect, SoundCategory, RPGSoundLibrary, AudioLoadingState } from '../types/audio';
 import AudioContextManager from './audioContext';
 
 class SoundLibraryManager {

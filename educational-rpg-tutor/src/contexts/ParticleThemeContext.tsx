@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { createParticleConfig } from '../components/particles/ParticleConfig';
 import { useDeviceCapability } from '../hooks/useDeviceCapability';
-import { ParticleConfig } from '../types/animation';
+import type { ParticleConfig } from '../types/animation';
 
 export type ParticleTheme = 'magical' | 'tech' | 'nature' | 'cosmic';
 

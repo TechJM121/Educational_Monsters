@@ -1,4 +1,4 @@
-import { HapticCapabilities, HapticPattern, HapticOptions, HapticCategory, RPGHapticLibrary } from '../types/haptics';
+import type { HapticCapabilities, HapticPattern, HapticOptions, HapticCategory, RPGHapticLibrary } from '../types/haptics';
 
 class HapticEngine {
   private static instance: HapticEngine;

@@ -1,6 +1,6 @@
 import { useCallback, useRef } from 'react';
 import { useAudioSystem } from './useAudioSystem';
-import { PlaySoundOptions } from '../types/audio';
+import type { PlaySoundOptions } from '../types/audio';
 
 export interface ContextualSoundOptions extends PlaySoundOptions {
   priority?: 'low' | 'medium' | 'high';

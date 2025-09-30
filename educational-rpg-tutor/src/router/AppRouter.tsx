@@ -11,6 +11,7 @@ import { CharacterPage } from '../pages/CharacterPage';
 import { QuestsPage } from '../pages/QuestsPage';
 import { AchievementsPage } from '../pages/AchievementsPage';
 import { InventoryPage } from '../pages/InventoryPage';
+import { MonsterPage } from '../pages/MonsterPage';
 import { LeaderboardPage } from '../pages/LeaderboardPage';
 import { ParentDashboardPage } from '../pages/ParentDashboardPage';
 import { GameModesPage } from '../pages/GameModesPage';
@@ -85,6 +86,12 @@ export const AppRouter: React.FC = () => {
           <Route path="inventory" element={
             <SimpleProtectedRoute>
               <InventoryPage />
+            </SimpleProtectedRoute>
+          } />
+
+          <Route path="monsters" element={
+            <SimpleProtectedRoute>
+              <MonsterPage />
             </SimpleProtectedRoute>
           } />
 

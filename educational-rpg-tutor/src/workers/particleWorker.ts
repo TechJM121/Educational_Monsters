@@ -1,5 +1,5 @@
 // Web Worker for particle physics calculations
-import { Particle } from '../types/animation';
+import type { Particle } from '../types/animation';
 
 export interface ParticleWorkerMessage {
   type: 'UPDATE_PARTICLES' | 'INIT_PARTICLES' | 'SET_CONFIG';

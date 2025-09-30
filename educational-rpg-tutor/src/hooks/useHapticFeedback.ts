@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { HapticCapabilities, HapticPreferences, HapticOptions, HapticCategory } from '../types/haptics';
+import type { HapticCapabilities, HapticPreferences, HapticOptions, HapticCategory } from '../types/haptics';
 import HapticEngine from '../utils/hapticEngine';
 
 const DEFAULT_PREFERENCES: HapticPreferences = {
